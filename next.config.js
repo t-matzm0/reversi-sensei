@@ -19,7 +19,9 @@ const nextConfig = {
     unoptimized: true,
   },
   // Static export configuration for Firebase
-  output: process.env.EXPORT_MODE === 'static' ? 'export' : undefined,
+  output: process.env.BUILD_TARGET === 'firebase' ? 'export' : undefined,
+  trailingSlash: true,
+  skipTrailingSlashRedirect: true,
   // Ensure proper host binding
   experimental: {
     serverActions: {

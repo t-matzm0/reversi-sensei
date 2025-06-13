@@ -15,8 +15,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky install",
-    "build:firebase": "next build && next export -o out",
-    "deploy:firebase": "npm run build:firebase && firebase deploy --only hosting",
+    "build:firebase:staging": "BUILD_TARGET=firebase next build",
+    "build:firebase:production": "BUILD_TARGET=firebase next build",
+    "deploy:staging": "npm run build:firebase:staging && firebase use staging && firebase deploy --only hosting:staging",
+    "deploy:production": "npm run build:firebase:production && firebase use production && firebase deploy --only hosting:production",
     "serve:firebase": "firebase emulators:start --only hosting"
   },
   "dependencies": {

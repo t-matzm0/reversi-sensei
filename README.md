@@ -91,6 +91,27 @@ reversi-sensei/
 3. **AI難易度変更**: 右側のパネルから難易度を選択
 4. **対戦モード**: AIとの対戦/人間同士の対戦を切り替え可能
 
+## 環境
+
+### 本番環境
+- URL: https://reversi-sensei.web.app
+- ブランチ: `main`
+
+### 検証環境
+- URL: https://reversi-sensei-staging.web.app
+- ブランチ: `develop`
+- アクセス制御: パスワード認証あり
+
+## 開発フロー
+
+1. **機能開発**: `develop`ブランチから`feature/xxx`ブランチを作成
+2. **プルリクエスト**: `feature/xxx` → `develop`
+3. **検証環境**: `develop`ブランチに自動デプロイ
+4. **本番リリース**: `develop` → `main`のプルリクエスト
+5. **本番環境**: `main`ブランチに自動デプロイ
+
+詳細は [DEPLOYMENT.md](./DEPLOYMENT.md) を参照してください。
+
 ## 今後の機能追加予定
 
 - [ ] オセロの戦略チュートリアル

@@ -1,5 +1,19 @@
 {
   "projects": {
-    "default": "reversi-sensei"
+    "default": "reversi-sensei",
+    "staging": "reversi-sensei-staging",
+    "production": "reversi-sensei"
+  },
+  "targets": {
+    "reversi-sensei-staging": {
+      "hosting": {
+        "staging": ["reversi-sensei-staging"]
+      }
+    },
+    "reversi-sensei": {
+      "hosting": {
+        "production": ["reversi-sensei"]
+      }
+    }
   }
 }
