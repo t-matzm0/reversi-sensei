@@ -6,19 +6,21 @@ import { Board, Player, Position } from '@/types/game';
 interface GameBoardProps {
   board: Board;
   currentPlayer: Player;
-  possibleMoves: Position[];
+  possibleMoves?: Position[];
   onCellClick: (row: number, col: number) => void;
   showHints: boolean;
-  lastMove?: Position;
+  lastMove?: Position | null;
+  highlightPositions?: [number, number][];
 }
 
 export default function GameBoard({
   board,
   currentPlayer: _currentPlayer,
-  possibleMoves,
+  possibleMoves = [],
   onCellClick,
   showHints,
   lastMove,
+  highlightPositions = [],
 }: GameBoardProps) {
   const isPossibleMove = (row: number, col: number) => {
     return possibleMoves.some(move => move.row === row && move.col === col);
@@ -26,6 +28,10 @@ export default function GameBoard({
 
   const isLastMove = (row: number, col: number) => {
     return lastMove && lastMove.row === row && lastMove.col === col;
+  };
+
+  const isHighlighted = (row: number, col: number) => {
+    return highlightPositions.some(pos => pos[0] === row && pos[1] === col);
   };
 
   return (
@@ -42,6 +48,7 @@ export default function GameBoard({
                 cursor-pointer transition-all duration-200
                 ${isPossibleMove(rowIndex, colIndex) ? 'hover:bg-green-600' : ''}
                 ${isLastMove(rowIndex, colIndex) ? 'ring-2 ring-yellow-400' : ''}
+                ${isHighlighted(rowIndex, colIndex) ? 'bg-yellow-200 dark:bg-yellow-800' : ''}
               `}
               onClick={() => onCellClick(rowIndex, colIndex)}
             >
