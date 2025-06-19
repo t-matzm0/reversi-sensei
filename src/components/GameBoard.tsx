@@ -13,7 +13,7 @@ interface GameBoardProps {
   highlightPositions?: [number, number][];
 }
 
-export default function GameBoard({
+function GameBoard({
   board,
   currentPlayer: _currentPlayer,
   possibleMoves = [],
@@ -88,3 +88,14 @@ export default function GameBoard({
     </div>
   );
 }
+
+export default React.memo(GameBoard, (prevProps, nextProps) => {
+  return (
+    prevProps.board === nextProps.board &&
+    prevProps.currentPlayer === nextProps.currentPlayer &&
+    prevProps.showHints === nextProps.showHints &&
+    prevProps.lastMove === nextProps.lastMove &&
+    JSON.stringify(prevProps.possibleMoves) === JSON.stringify(nextProps.possibleMoves) &&
+    JSON.stringify(prevProps.highlightPositions) === JSON.stringify(nextProps.highlightPositions)
+  );
+});

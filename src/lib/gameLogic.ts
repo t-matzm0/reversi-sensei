@@ -1,6 +1,5 @@
 import { Board, Player, Position } from '@/types/game';
-
-export const BOARD_SIZE = 8;
+import { BOARD_SIZE } from '@/constants';
 
 export function createInitialBoard(): Board {
   const board: Board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));

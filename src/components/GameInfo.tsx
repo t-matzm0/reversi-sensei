@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Player } from '@/types/game';
+import { Loading } from './Loading';
 
 interface GameInfoProps {
   currentPlayer: Player;
@@ -19,7 +20,7 @@ interface GameInfoProps {
   isThinking: boolean;
 }
 
-export default function GameInfo({
+function GameInfo({
   currentPlayer,
   blackScore,
   whiteScore,
@@ -69,7 +70,9 @@ export default function GameInfo({
             </span>
           </div>
           {isThinking && (
-            <p className="text-sm text-blue-600 mt-2 animate-pulse">考え中...</p>
+            <div className="mt-3">
+              <Loading message="AIが考え中..." size="small" />
+            </div>
           )}
         </div>
       )}
@@ -161,3 +164,5 @@ export default function GameInfo({
     </div>
   );
 }
+
+export default React.memo(GameInfo);

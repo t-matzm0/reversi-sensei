@@ -1,34 +1,14 @@
 import { Board, Position, Player } from '@/types/game';
 import { getAllValidMoves, makeMove, countPieces, getFlippedPieces } from './gameLogic';
+import { POSITION_WEIGHTS, DIFFICULTY_SETTINGS, BOARD_SIZE } from '@/constants';
+import { isCornerPosition, isEdgePosition } from '@/utils';
 
-const CORNER_POSITIONS = [
-  { row: 0, col: 0 }, { row: 0, col: 7 },
-  { row: 7, col: 0 }, { row: 7, col: 7 }
-];
-
-const EDGE_POSITIONS = [
-  ...Array.from({ length: 6 }, (_, i) => ({ row: 0, col: i + 1 })),
-  ...Array.from({ length: 6 }, (_, i) => ({ row: 7, col: i + 1 })),
-  ...Array.from({ length: 6 }, (_, i) => ({ row: i + 1, col: 0 })),
-  ...Array.from({ length: 6 }, (_, i) => ({ row: i + 1, col: 7 })),
-];
-
-const POSITION_WEIGHTS = [
-  [100, -20,  10,   5,   5,  10, -20, 100],
-  [-20, -50,  -2,  -2,  -2,  -2, -50, -20],
-  [ 10,  -2,  -1,  -1,  -1,  -1,  -2,  10],
-  [  5,  -2,  -1,  -1,  -1,  -1,  -2,   5],
-  [  5,  -2,  -1,  -1,  -1,  -1,  -2,   5],
-  [ 10,  -2,  -1,  -1,  -1,  -1,  -2,  10],
-  [-20, -50,  -2,  -2,  -2,  -2, -50, -20],
-  [100, -20,  10,   5,   5,  10, -20, 100],
-];
 
 export function evaluatePosition(board: Board, player: Player): number {
   let score = 0;
   
-  for (let row = 0; row < 8; row++) {
-    for (let col = 0; col < 8; col++) {
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
       if (board[row][col] === player) {
         score += POSITION_WEIGHTS[row][col];
       } else if (board[row][col] !== null) {
@@ -60,15 +40,13 @@ export function evaluateMove(
   } else if (difficulty === 'hard') {
     score += flippedCount * 5;
     
-    const isCorner = CORNER_POSITIONS.some(
-      corner => corner.row === move.row && corner.col === move.col
-    );
-    if (isCorner) score += 200;
+    if (isCornerPosition(move)) {
+      score += 200;
+    }
     
-    const isEdge = EDGE_POSITIONS.some(
-      edge => edge.row === move.row && edge.col === move.col
-    );
-    if (isEdge) score += 50;
+    if (isEdgePosition(move)) {
+      score += 50;
+    }
     
     const { black, white } = countPieces(newBoard);
     const totalPieces = black + white;
@@ -91,7 +69,7 @@ export function getBestMove(
   
   if (validMoves.length === 0) return null;
   
-  if (difficulty === 'easy' && Math.random() < 0.3) {
+  if (difficulty === 'easy' && Math.random() < DIFFICULTY_SETTINGS.easy.randomness) {
     return validMoves[Math.floor(Math.random() * validMoves.length)];
   }
   
