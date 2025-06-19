@@ -80,3 +80,72 @@ export function isEdgePosition(position: Position): boolean {
     position.col === BOARD_SIZE - 1
   );
 }
+
+/**
+ * Check if a position is valid (within board bounds)
+ */
+export function isValidPosition(row: number, col: number): boolean {
+  return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
+}
+
+/**
+ * Get all adjacent positions around a given position
+ */
+export function getAdjacentPositions(row: number, col: number): Position[] {
+  const directions = [
+    [-1, -1], [-1, 0], [-1, 1],
+    [0, -1],           [0, 1],
+    [1, -1],  [1, 0],  [1, 1]
+  ];
+  
+  const adjacent: Position[] = [];
+  
+  for (const [dr, dc] of directions) {
+    const newRow = row + dr;
+    const newCol = col + dc;
+    
+    if (isValidPosition(newRow, newCol)) {
+      adjacent.push({ row: newRow, col: newCol });
+    }
+  }
+  
+  return adjacent;
+}
+
+/**
+ * Convert position to string notation (e.g., {row: 0, col: 0} -> "a1")
+ */
+export function positionToString(position: Position): string {
+  return `${String.fromCharCode(97 + position.col)}${position.row + 1}`;
+}
+
+/**
+ * Convert string notation to position (e.g., "a1" -> {row: 0, col: 0})
+ */
+export function stringToPosition(notation: string): Position | null {
+  if (notation.length !== 2) return null;
+  
+  const col = notation.charCodeAt(0) - 97;
+  const row = parseInt(notation[1]) - 1;
+  
+  if (!isValidPosition(row, col) || isNaN(row)) {
+    return null;
+  }
+  
+  return { row, col };
+}
+
+/**
+ * Get board symmetry for a position
+ */
+export function getBoardSymmetry(position: Position): Position[] {
+  const { row, col } = position;
+  const maxIdx = BOARD_SIZE - 1;
+  
+  return [
+    position,
+    { row, col: maxIdx - col },
+    { row: maxIdx - row, col },
+    { row: maxIdx - row, col: maxIdx - col },
+  ];
+}
