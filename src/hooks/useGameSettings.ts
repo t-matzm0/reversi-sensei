@@ -16,19 +16,25 @@ const DEFAULT_SETTINGS: GameSettings = {
 };
 
 export function useGameSettings() {
-  const [settings, setSettings] = useLocalStorage<GameSettings>('reversi-settings', DEFAULT_SETTINGS);
+  const [settings, setSettings] = useLocalStorage<GameSettings>(
+    'reversi-settings',
+    DEFAULT_SETTINGS
+  );
 
   const toggleHints = useCallback(() => {
-    setSettings(prev => ({ ...prev, showHints: !prev.showHints }));
+    setSettings((prev) => ({ ...prev, showHints: !prev.showHints }));
   }, [setSettings]);
 
   const toggleGameMode = useCallback(() => {
-    setSettings(prev => ({ ...prev, isVsComputer: !prev.isVsComputer }));
+    setSettings((prev) => ({ ...prev, isVsComputer: !prev.isVsComputer }));
   }, [setSettings]);
 
-  const setDifficulty = useCallback((difficulty: Difficulty) => {
-    setSettings(prev => ({ ...prev, difficulty }));
-  }, [setSettings]);
+  const setDifficulty = useCallback(
+    (difficulty: Difficulty) => {
+      setSettings((prev) => ({ ...prev, difficulty }));
+    },
+    [setSettings]
+  );
 
   return {
     showHints: settings.showHints,

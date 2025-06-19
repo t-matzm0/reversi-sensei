@@ -30,21 +30,21 @@ export function useGameState() {
   const updateGameState = useCallback((board: Board, nextPlayer: Player) => {
     const scores = countPieces(board);
     let possibleMoves = getAllValidMoves(board, nextPlayer);
-    
+
     if (possibleMoves.length === 0) {
       const opponent = getOpponent(nextPlayer);
       const opponentMoves = getAllValidMoves(board, opponent);
-      
+
       if (opponentMoves.length > 0) {
         nextPlayer = opponent;
         possibleMoves = opponentMoves;
       }
     }
-    
+
     const gameOver = isGameOver(board);
     const winner = gameOver ? getWinner(board) : null;
 
-    setGameState(prev => ({
+    setGameState((prev) => ({
       ...prev,
       board,
       currentPlayer: gameOver ? null : nextPlayer,

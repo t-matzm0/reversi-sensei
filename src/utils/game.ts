@@ -5,11 +5,11 @@ import { Player, GameState } from '@/types/game';
  */
 export function formatPlayerName(player: Player | null, isJapanese: boolean = true): string {
   if (!player) return '';
-  
+
   if (isJapanese) {
     return player === 'black' ? '黒' : '白';
   }
-  
+
   return player === 'black' ? 'Black' : 'White';
 }
 
@@ -24,11 +24,11 @@ export function getGameStatusMessage(gameState: GameState, isJapanese: boolean =
     const winnerName = formatPlayerName(gameState.winner, isJapanese);
     return isJapanese ? `${winnerName}の勝利！` : `${winnerName} wins!`;
   }
-  
+
   if (!gameState.currentPlayer) {
     return '';
   }
-  
+
   const currentPlayerName = formatPlayerName(gameState.currentPlayer, isJapanese);
   return isJapanese ? `${currentPlayerName}のターン` : `${currentPlayerName}'s turn`;
 }
@@ -36,17 +36,20 @@ export function getGameStatusMessage(gameState: GameState, isJapanese: boolean =
 /**
  * Calculate score difference
  */
-export function getScoreDifference(blackScore: number, whiteScore: number): {
+export function getScoreDifference(
+  blackScore: number,
+  whiteScore: number
+): {
   difference: number;
   leader: Player | null;
 } {
   const difference = Math.abs(blackScore - whiteScore);
-  
+
   if (blackScore > whiteScore) {
     return { difference, leader: 'black' };
   } else if (whiteScore > blackScore) {
     return { difference, leader: 'white' };
   }
-  
+
   return { difference: 0, leader: null };
 }

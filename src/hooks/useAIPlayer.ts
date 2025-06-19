@@ -16,7 +16,12 @@ export function useAIPlayer({ gameState, isVsComputer, difficulty, onMove }: Use
   const [isThinking, setIsThinking] = useState(false);
 
   useEffect(() => {
-    if (!isVsComputer || gameState.gameOver || !gameState.currentPlayer || gameState.currentPlayer !== 'white') {
+    if (
+      !isVsComputer ||
+      gameState.gameOver ||
+      !gameState.currentPlayer ||
+      gameState.currentPlayer !== 'white'
+    ) {
       return;
     }
 

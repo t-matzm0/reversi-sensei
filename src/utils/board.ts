@@ -13,21 +13,24 @@ export function positionToAlgebraic(position: Position): string {
  */
 export function algebraicToPosition(notation: string): Position | null {
   if (notation.length !== 2) return null;
-  
+
   const col = notation.charCodeAt(0) - 65;
   const row = parseInt(notation[1]) - 1;
-  
+
   if (col < 0 || col >= BOARD_SIZE || row < 0 || row >= BOARD_SIZE || isNaN(row)) {
     return null;
   }
-  
+
   return { row, col };
 }
 
 /**
  * Check if two positions are equal
  */
-export function arePositionsEqual(pos1: Position | null | undefined, pos2: Position | null | undefined): boolean {
+export function arePositionsEqual(
+  pos1: Position | null | undefined,
+  pos2: Position | null | undefined
+): boolean {
   if (!pos1 || !pos2) return false;
   return pos1.row === pos2.row && pos1.col === pos2.col;
 }
@@ -48,7 +51,7 @@ export function getCornerPositions(): Position[] {
  * Check if a position is a corner
  */
 export function isCornerPosition(position: Position): boolean {
-  return getCornerPositions().some(corner => arePositionsEqual(corner, position));
+  return getCornerPositions().some((corner) => arePositionsEqual(corner, position));
 }
 
 /**
@@ -56,14 +59,14 @@ export function isCornerPosition(position: Position): boolean {
  */
 export function getEdgePositions(): Position[] {
   const edges: Position[] = [];
-  
+
   for (let i = 1; i < BOARD_SIZE - 1; i++) {
     edges.push({ row: 0, col: i });
     edges.push({ row: BOARD_SIZE - 1, col: i });
     edges.push({ row: i, col: 0 });
     edges.push({ row: i, col: BOARD_SIZE - 1 });
   }
-  
+
   return edges;
 }
 
@@ -72,7 +75,7 @@ export function getEdgePositions(): Position[] {
  */
 export function isEdgePosition(position: Position): boolean {
   if (isCornerPosition(position)) return false;
-  
+
   return (
     position.row === 0 ||
     position.row === BOARD_SIZE - 1 ||
@@ -93,22 +96,27 @@ export function isValidPosition(row: number, col: number): boolean {
  */
 export function getAdjacentPositions(row: number, col: number): Position[] {
   const directions = [
-    [-1, -1], [-1, 0], [-1, 1],
-    [0, -1],           [0, 1],
-    [1, -1],  [1, 0],  [1, 1]
+    [-1, -1],
+    [-1, 0],
+    [-1, 1],
+    [0, -1],
+    [0, 1],
+    [1, -1],
+    [1, 0],
+    [1, 1],
   ];
-  
+
   const adjacent: Position[] = [];
-  
+
   for (const [dr, dc] of directions) {
     const newRow = row + dr;
     const newCol = col + dc;
-    
+
     if (isValidPosition(newRow, newCol)) {
       adjacent.push({ row: newRow, col: newCol });
     }
   }
-  
+
   return adjacent;
 }
 
@@ -124,14 +132,14 @@ export function positionToString(position: Position): string {
  */
 export function stringToPosition(notation: string): Position | null {
   if (notation.length !== 2) return null;
-  
+
   const col = notation.charCodeAt(0) - 97;
   const row = parseInt(notation[1]) - 1;
-  
+
   if (!isValidPosition(row, col) || isNaN(row)) {
     return null;
   }
-  
+
   return { row, col };
 }
 
@@ -141,7 +149,7 @@ export function stringToPosition(notation: string): Position | null {
 export function getBoardSymmetry(position: Position): Position[] {
   const { row, col } = position;
   const maxIdx = BOARD_SIZE - 1;
-  
+
   return [
     position,
     { row, col: maxIdx - col },

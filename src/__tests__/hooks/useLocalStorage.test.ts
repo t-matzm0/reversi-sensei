@@ -20,7 +20,7 @@ describe('useLocalStorage', () => {
 
   it('should update localStorage when value changes', () => {
     const { result } = renderHook(() => useLocalStorage('testKey', 'initialValue'));
-    
+
     act(() => {
       result.current[1]('newValue');
     });
@@ -30,10 +30,10 @@ describe('useLocalStorage', () => {
   });
 
   it('should handle objects and arrays', () => {
-    const { result } = renderHook(() => 
+    const { result } = renderHook(() =>
       useLocalStorage('testObject', { name: 'test', value: 123 })
     );
-    
+
     expect(result.current[0]).toEqual({ name: 'test', value: 123 });
 
     act(() => {
@@ -46,16 +46,16 @@ describe('useLocalStorage', () => {
   it('should handle localStorage errors gracefully', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
     localStorage.setItem('testKey', 'invalid json');
-    
+
     const { result } = renderHook(() => useLocalStorage('testKey', 'fallback'));
     expect(result.current[0]).toBe('fallback');
-    
+
     consoleSpy.mockRestore();
   });
 
   it('should remove item when value is undefined', () => {
-    const { result } = renderHook(() => useLocalStorage('testKey', 'value'));
-    
+    const { result } = renderHook(() => useLocalStorage<string | undefined>('testKey', 'value'));
+
     act(() => {
       result.current[1]('someValue');
     });

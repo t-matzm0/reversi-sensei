@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: [
@@ -14,8 +14,8 @@ const config: Config = {
         'piece-white': '#f0f0f0',
       },
       animation: {
-        'flip': 'flip 0.6s ease-in-out',
-        'place': 'place 0.3s ease-out',
+        flip: 'flip 0.6s ease-in-out',
+        place: 'place 0.3s ease-out',
       },
       keyframes: {
         flip: {
@@ -30,5 +30,5 @@ const config: Config = {
     },
   },
   plugins: [],
-}
-export default config
+};
+export default config;

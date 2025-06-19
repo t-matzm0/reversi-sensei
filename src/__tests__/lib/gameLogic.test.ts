@@ -78,7 +78,7 @@ describe('gameLogic', () => {
       const board = createInitialBoard();
       const blackMoves = getAllValidMoves(board, 'black');
       const whiteMoves = getAllValidMoves(board, 'white');
-      
+
       expect(blackMoves).toHaveLength(4);
       expect(whiteMoves).toHaveLength(4);
     });
@@ -100,7 +100,9 @@ describe('gameLogic', () => {
     });
 
     it('should return true when board is full', () => {
-      const board: Board = Array(8).fill(null).map(() => Array(8).fill('black'));
+      const board: Board = Array(8)
+        .fill(null)
+        .map(() => Array(8).fill('black'));
       expect(isGameOver(board)).toBe(true);
     });
   });
@@ -112,7 +114,9 @@ describe('gameLogic', () => {
     });
 
     it('should return winner with more pieces', () => {
-      const board: Board = Array(8).fill(null).map(() => Array(8).fill(null));
+      const board: Board = Array(8)
+        .fill(null)
+        .map(() => Array(8).fill(null));
       board[0][0] = 'black';
       board[0][1] = 'black';
       board[0][2] = 'white';

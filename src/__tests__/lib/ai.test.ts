@@ -21,7 +21,9 @@ describe('AI', () => {
 
   describe('getBestMove', () => {
     it('should return null when no valid moves', () => {
-      const board: Board = Array(8).fill(null).map(() => Array(8).fill('black'));
+      const board: Board = Array(8)
+        .fill(null)
+        .map(() => Array(8).fill('black'));
       const move = getBestMove(board, 'white');
       expect(move).toBeNull();
     });
@@ -45,7 +47,7 @@ describe('AI', () => {
       board[0][1] = 'white';
       board[1][0] = 'white';
       board[1][1] = 'white';
-      
+
       const move = getBestMove(board, 'black', 'hard');
       expect(move).toEqual({ row: 0, col: 0 });
     });
@@ -55,7 +57,7 @@ describe('AI', () => {
       const easyMove = getBestMove(board, 'black', 'easy');
       const mediumMove = getBestMove(board, 'black', 'medium');
       const hardMove = getBestMove(board, 'black', 'hard');
-      
+
       expect(easyMove).toBeTruthy();
       expect(mediumMove).toBeTruthy();
       expect(hardMove).toBeTruthy();
@@ -67,10 +69,10 @@ describe('AI', () => {
       const board = createInitialBoard();
       const move1 = { row: 2, col: 3 };
       const move2 = { row: 3, col: 2 };
-      
+
       const score1 = evaluateMove(board, move1, 'black', 'medium');
       const score2 = evaluateMove(board, move2, 'black', 'medium');
-      
+
       expect(typeof score1).toBe('number');
       expect(typeof score2).toBe('number');
     });

@@ -14,7 +14,9 @@ export function Loading({ message = '読み込み中...', size = 'medium' }: Loa
 
   return (
     <div className="flex flex-col items-center justify-center gap-3">
-      <div className={`${sizeClasses[size]} animate-spin rounded-full border-b-2 border-blue-500`} />
+      <div
+        className={`${sizeClasses[size]} animate-spin rounded-full border-b-2 border-blue-500`}
+      />
       {message && <p className="text-gray-600 text-sm">{message}</p>}
     </div>
   );

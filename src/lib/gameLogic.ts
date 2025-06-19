@@ -2,14 +2,16 @@ import { Board, Player, Position } from '@/types/game';
 import { BOARD_SIZE } from '@/constants';
 
 export function createInitialBoard(): Board {
-  const board: Board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(null));
-  
+  const board: Board = Array(BOARD_SIZE)
+    .fill(null)
+    .map(() => Array(BOARD_SIZE).fill(null));
+
   const mid = Math.floor(BOARD_SIZE / 2);
   board[mid - 1][mid - 1] = 'white';
   board[mid - 1][mid] = 'black';
   board[mid][mid - 1] = 'black';
   board[mid][mid] = 'white';
-  
+
   return board;
 }
 
@@ -22,9 +24,14 @@ export function getOpponent(player: Player): Player {
 }
 
 const directions = [
-  [-1, -1], [-1, 0], [-1, 1],
-  [0, -1],           [0, 1],
-  [1, -1],  [1, 0],  [1, 1]
+  [-1, -1],
+  [-1, 0],
+  [-1, 1],
+  [0, -1],
+  [0, 1],
+  [1, -1],
+  [1, 0],
+  [1, 1],
 ];
 
 export function getFlippedPieces(
@@ -59,12 +66,7 @@ export function getFlippedPieces(
   return flipped;
 }
 
-export function isValidMove(
-  board: Board,
-  row: number,
-  col: number,
-  player: Player
-): boolean {
+export function isValidMove(board: Board, row: number, col: number, player: Player): boolean {
   return getFlippedPieces(board, row, col, player).length > 0;
 }
 
@@ -83,7 +85,7 @@ export function getAllValidMoves(board: Board, player: Player): Position[] {
 }
 
 export function makeMove(board: Board, row: number, col: number, player: Player): Board {
-  const newBoard = board.map(row => [...row]);
+  const newBoard = board.map((row) => [...row]);
   const flipped = getFlippedPieces(board, row, col, player);
 
   newBoard[row][col] = player;
@@ -110,8 +112,7 @@ export function countPieces(board: Board): { black: number; white: number } {
 
 export function isGameOver(board: Board): boolean {
   return (
-    getAllValidMoves(board, 'black').length === 0 &&
-    getAllValidMoves(board, 'white').length === 0
+    getAllValidMoves(board, 'black').length === 0 && getAllValidMoves(board, 'white').length === 0
   );
 }
 

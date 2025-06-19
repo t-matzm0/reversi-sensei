@@ -28,17 +28,20 @@
 ### インストール手順
 
 1. リポジトリをクローン
+
 ```bash
 git clone https://github.com/yourusername/reversi-sensei.git
 cd reversi-sensei
 ```
 
 2. 依存関係をインストール
+
 ```bash
 npm install
 ```
 
 3. 開発サーバーを起動
+
 ```bash
 npm run dev
 ```
@@ -94,10 +97,12 @@ reversi-sensei/
 ## 環境
 
 ### 本番環境
+
 - URL: https://reversi-sensei.web.app
 - ブランチ: `main`
 
 ### 検証環境
+
 - URL: https://reversi-sensei-staging.web.app
 - ブランチ: `develop`
 - アクセス制御: パスワード認証あり

@@ -38,7 +38,7 @@ function GameInfo({
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xs">
       <h2 className="text-2xl font-bold mb-4 text-center">ゲーム情報</h2>
-      
+
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -47,7 +47,7 @@ function GameInfo({
           </div>
           <span className="text-2xl font-bold">{blackScore}</span>
         </div>
-        
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-piece-white rounded-full shadow-md border-2 border-gray-300" />
@@ -56,14 +56,18 @@ function GameInfo({
           <span className="text-2xl font-bold">{whiteScore}</span>
         </div>
       </div>
-      
+
       {!gameOver && currentPlayer && (
         <div className="mb-6 text-center">
           <p className="text-sm text-gray-600 mb-2">現在のターン</p>
           <div className="flex items-center justify-center gap-2">
-            <div className={`w-6 h-6 rounded-full shadow-md ${
-              currentPlayer === 'black' ? 'bg-piece-black' : 'bg-piece-white border-2 border-gray-300'
-            }`} />
+            <div
+              className={`w-6 h-6 rounded-full shadow-md ${
+                currentPlayer === 'black'
+                  ? 'bg-piece-black'
+                  : 'bg-piece-white border-2 border-gray-300'
+              }`}
+            />
             <span className="font-semibold">
               {currentPlayer === 'black' ? '黒' : '白'}
               {isVsComputer && currentPlayer === 'white' && ' (AI)'}
@@ -76,25 +80,25 @@ function GameInfo({
           )}
         </div>
       )}
-      
+
       {gameOver && (
         <div className="mb-6 text-center">
           <p className="text-lg font-bold mb-2">ゲーム終了！</p>
           {winner ? (
             <div className="flex items-center justify-center gap-2">
-              <div className={`w-6 h-6 rounded-full shadow-md ${
-                winner === 'black' ? 'bg-piece-black' : 'bg-piece-white border-2 border-gray-300'
-              }`} />
-              <span className="font-semibold">
-                {winner === 'black' ? '黒' : '白'}の勝利！
-              </span>
+              <div
+                className={`w-6 h-6 rounded-full shadow-md ${
+                  winner === 'black' ? 'bg-piece-black' : 'bg-piece-white border-2 border-gray-300'
+                }`}
+              />
+              <span className="font-semibold">{winner === 'black' ? '黒' : '白'}の勝利！</span>
             </div>
           ) : (
             <p className="font-semibold">引き分け！</p>
           )}
         </div>
       )}
-      
+
       <div className="space-y-3">
         <button
           onClick={onNewGame}
@@ -102,7 +106,7 @@ function GameInfo({
         >
           新しいゲーム
         </button>
-        
+
         <button
           onClick={onToggleHints}
           className={`w-full py-2 px-4 rounded-lg transition-colors font-semibold ${
@@ -113,7 +117,7 @@ function GameInfo({
         >
           ヒント: {showHints ? 'ON' : 'OFF'}
         </button>
-        
+
         <div className="border-t pt-3">
           <button
             onClick={onToggleGameMode}
@@ -121,7 +125,7 @@ function GameInfo({
           >
             {isVsComputer ? 'AIと対戦中' : '人間同士で対戦'}
           </button>
-          
+
           {isVsComputer && (
             <div>
               <p className="text-sm font-semibold mb-2">AI難易度</p>

@@ -5,7 +5,6 @@ import {
   isValidPosition,
   positionToString,
   stringToPosition,
-  getBoardSymmetry,
 } from '@/utils/board';
 
 describe('board utilities', () => {
@@ -79,7 +78,7 @@ describe('board utilities', () => {
       expect(positionToString({ row: 0, col: 0 })).toBe('a1');
       expect(positionToString({ row: 7, col: 7 })).toBe('h8');
       expect(positionToString({ row: 3, col: 4 })).toBe('e4');
-      
+
       expect(stringToPosition('a1')).toEqual({ row: 0, col: 0 });
       expect(stringToPosition('h8')).toEqual({ row: 7, col: 7 });
       expect(stringToPosition('e4')).toEqual({ row: 3, col: 4 });
