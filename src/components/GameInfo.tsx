@@ -12,7 +12,9 @@ interface GameInfoProps {
   winner: Player;
   onNewGame: () => void;
   onToggleHints: () => void;
+  onToggleEvaluations: () => void;
   showHints: boolean;
+  showEvaluations: boolean;
   isVsComputer: boolean;
   difficulty: 'easy' | 'medium' | 'hard';
   onToggleGameMode: () => void;
@@ -28,7 +30,9 @@ function GameInfo({
   winner,
   onNewGame,
   onToggleHints,
+  onToggleEvaluations,
   showHints,
+  showEvaluations,
   isVsComputer,
   difficulty,
   onToggleGameMode,
@@ -116,6 +120,17 @@ function GameInfo({
           }`}
         >
           ヒント: {showHints ? 'ON' : 'OFF'}
+        </button>
+
+        <button
+          onClick={onToggleEvaluations}
+          className={`w-full py-2 px-4 rounded-lg transition-colors font-semibold ${
+            showEvaluations
+              ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+              : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+          }`}
+        >
+          評価値: {showEvaluations ? 'ON' : 'OFF'}
         </button>
 
         <div className="border-t pt-3">

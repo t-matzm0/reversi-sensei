@@ -6,13 +6,21 @@ import GameBoard from './GameBoard';
 import GameInfo from './GameInfo';
 import { GameErrorBoundary } from './GameErrorBoundary';
 import { Board } from '@/types/game';
-import { useGameState, useGameSettings, useAIPlayer } from '@/hooks';
+import { useGameState, useGameSettings, useAIPlayer, useMoveEvaluation } from '@/hooks';
 import { isValidMove, makeMove, getOpponent } from '@/lib/gameLogic';
 
 export default function Game() {
   const { gameState, lastMove, setLastMove, updateGameState, resetGame } = useGameState();
-  const { showHints, isVsComputer, difficulty, toggleHints, toggleGameMode, setDifficulty } =
-    useGameSettings();
+  const {
+    showHints,
+    showEvaluations,
+    isVsComputer,
+    difficulty,
+    toggleHints,
+    toggleEvaluations,
+    toggleGameMode,
+    setDifficulty,
+  } = useGameSettings();
 
   const handleAIMove = useCallback(
     (board: Board, nextPlayer: 'black' | 'white', move: { row: number; col: number }) => {
@@ -28,6 +36,13 @@ export default function Game() {
     difficulty,
     onMove: handleAIMove,
   });
+
+  const moveEvaluations = useMoveEvaluation(
+    gameState.board,
+    gameState.currentPlayer,
+    gameState.possibleMoves,
+    difficulty
+  );
 
   const handleCellClick = useCallback(
     (row: number, col: number) => {
@@ -87,6 +102,8 @@ export default function Game() {
                 possibleMoves={gameState.possibleMoves}
                 onCellClick={handleCellClick}
                 showHints={showHints}
+                showEvaluations={showEvaluations}
+                moveEvaluations={moveEvaluations}
                 lastMove={lastMove}
               />
             </div>
@@ -99,7 +116,9 @@ export default function Game() {
               winner={gameState.winner}
               onNewGame={resetGame}
               onToggleHints={toggleHints}
+              onToggleEvaluations={toggleEvaluations}
               showHints={showHints}
+              showEvaluations={showEvaluations}
               isVsComputer={isVsComputer}
               difficulty={difficulty}
               onToggleGameMode={toggleGameMode}
