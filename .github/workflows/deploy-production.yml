@@ -41,7 +41,6 @@ jobs:
         run: |
           echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}" > $HOME/gcloud-service-key.json
           export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json
-          firebase use production --token "${{ secrets.FIREBASE_TOKEN }}"
           firebase deploy --only hosting:production --token "${{ secrets.FIREBASE_TOKEN }}"
 
       - name: Create GitHub Release

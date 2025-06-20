@@ -42,9 +42,8 @@ jobs:
 
       - name: Deploy to Firebase Staging
         run: |
-          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING }}" > $HOME/gcloud-service-key.json
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}" > $HOME/gcloud-service-key.json
           export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json
-          firebase use staging --token "${{ secrets.FIREBASE_TOKEN }}"
           firebase deploy --only hosting:staging --token "${{ secrets.FIREBASE_TOKEN }}"
 
       - name: Comment on PR
