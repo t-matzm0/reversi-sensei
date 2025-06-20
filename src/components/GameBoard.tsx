@@ -47,7 +47,7 @@ function GameBoard({
                 flex items-center justify-center
                 cursor-pointer transition-all duration-200
                 ${isPossibleMove(rowIndex, colIndex) ? 'hover:bg-green-600' : ''}
-                ${isLastMove(rowIndex, colIndex) ? 'ring-2 ring-yellow-400' : ''}
+                ${isLastMove(rowIndex, colIndex) ? 'border-2 border-yellow-400' : ''}
                 ${isHighlighted(rowIndex, colIndex) ? 'bg-yellow-200 dark:bg-yellow-800' : ''}
               `}
               onClick={() => onCellClick(rowIndex, colIndex)}
