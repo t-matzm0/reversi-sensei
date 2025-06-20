@@ -9,6 +9,8 @@ interface GameBoardProps {
   possibleMoves?: Position[];
   onCellClick: (row: number, col: number) => void;
   showHints: boolean;
+  showEvaluations?: boolean;
+  moveEvaluations?: Map<string, { normalizedScore: number }>;
   lastMove?: Position | null;
   highlightPositions?: [number, number][];
 }
@@ -19,6 +21,8 @@ function GameBoard({
   possibleMoves = [],
   onCellClick,
   showHints,
+  showEvaluations = false,
+  moveEvaluations,
   lastMove,
   highlightPositions = [],
 }: GameBoardProps) {
@@ -32,6 +36,19 @@ function GameBoard({
 
   const isHighlighted = (row: number, col: number) => {
     return highlightPositions.some((pos) => pos[0] === row && pos[1] === col);
+  };
+
+  const getEvaluationScore = (row: number, col: number) => {
+    if (!moveEvaluations) return null;
+    const key = `${row}-${col}`;
+    return moveEvaluations.get(key)?.normalizedScore ?? null;
+  };
+
+  const getEvaluationColor = (score: number) => {
+    if (score >= 50) return 'text-green-600 font-bold';
+    if (score >= 0) return 'text-green-500';
+    if (score >= -50) return 'text-orange-500';
+    return 'text-red-500 font-bold';
   };
 
   return (
@@ -65,6 +82,18 @@ function GameBoard({
               {showHints && isPossibleMove(rowIndex, colIndex) && !cell && (
                 <div className="absolute w-3 h-3 bg-yellow-400/50 rounded-full animate-pulse" />
               )}
+              {showEvaluations && isPossibleMove(rowIndex, colIndex) && !cell && (() => {
+                const score = getEvaluationScore(rowIndex, colIndex);
+                return score !== null ? (
+                  <div
+                    className={`absolute text-xs md:text-sm font-semibold ${
+                      getEvaluationColor(score)
+                    }`}
+                  >
+                    {score > 0 ? '+' : ''}{score}
+                  </div>
+                ) : null;
+              })()}
             </div>
           ))
         )}
