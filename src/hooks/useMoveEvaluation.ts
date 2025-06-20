@@ -32,12 +32,23 @@ export function useMoveEvaluation(
     // Find min and max scores for normalization
     const minScore = Math.min(...scores.map((s) => s.score));
     const maxScore = Math.max(...scores.map((s) => s.score));
-    const scoreRange = maxScore - minScore || 1; // Avoid division by zero
+    const scoreRange = maxScore - minScore;
 
     // Normalize scores to -100 to 100 range
     scores.forEach(({ position, score }) => {
-      const normalizedScore =
-        scoreRange === 0 ? 0 : Math.round(((score - minScore) / scoreRange) * 200 - 100);
+      let normalizedScore: number;
+      
+      if (scoreRange === 0) {
+        // All scores are the same, show them as neutral (0)
+        normalizedScore = 0;
+      } else if (scoreRange < 10) {
+        // Small range: show relative differences but keep them closer to 0
+        const relativeScore = ((score - minScore) / scoreRange) * 50 - 25; // -25 to +25 range
+        normalizedScore = Math.round(relativeScore);
+      } else {
+        // Normal range: use full -100 to +100 scale
+        normalizedScore = Math.round(((score - minScore) / scoreRange) * 200 - 100);
+      }
 
       const key = `${position.row}-${position.col}`;
       evaluations.set(key, {
