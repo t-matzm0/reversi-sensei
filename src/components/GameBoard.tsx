@@ -45,10 +45,10 @@ function GameBoard({
   };
 
   const getEvaluationColor = (score: number) => {
-    if (score >= 50) return 'text-green-600 font-bold';
-    if (score >= 0) return 'text-green-500';
-    if (score >= -50) return 'text-orange-500';
-    return 'text-red-500 font-bold';
+    if (score >= 50) return 'text-white bg-green-600';
+    if (score >= 0) return 'text-white bg-green-500';
+    if (score >= -50) return 'text-white bg-orange-500';
+    return 'text-white bg-red-500';
   };
 
   return (
@@ -79,26 +79,29 @@ function GameBoard({
                   `}
                 />
               )}
-              {showHints && isPossibleMove(rowIndex, colIndex) && !cell && (
-                <div className="absolute w-3 h-3 bg-yellow-400/50 rounded-full animate-pulse" />
-              )}
-              {showEvaluations &&
-                isPossibleMove(rowIndex, colIndex) &&
-                !cell &&
-                (() => {
-                  const score = getEvaluationScore(rowIndex, colIndex);
-                  console.log(`Debug: row=${rowIndex}, col=${colIndex}, score=${score}, showEvaluations=${showEvaluations}, moveEvaluations=`, moveEvaluations);
-                  return score !== null ? (
+              {isPossibleMove(rowIndex, colIndex) && !cell && (() => {
+                const score = getEvaluationScore(rowIndex, colIndex);
+                const hasEvaluation = showEvaluations && score !== null;
+                const hasHint = showHints;
+
+                if (hasEvaluation) {
+                  return (
                     <div
-                      className={`absolute text-xs md:text-sm font-semibold ${getEvaluationColor(
+                      className={`absolute text-xs font-bold rounded px-1 py-0.5 ${getEvaluationColor(
                         score
-                      )}`}
+                      )} shadow-sm border border-gray-300`}
                     >
                       {score > 0 ? '+' : ''}
                       {score}
                     </div>
-                  ) : null;
-                })()}
+                  );
+                } else if (hasHint) {
+                  return (
+                    <div className="absolute w-4 h-4 bg-yellow-400/70 rounded-full animate-pulse" />
+                  );
+                }
+                return null;
+              })()}
             </div>
           ))
         )}
