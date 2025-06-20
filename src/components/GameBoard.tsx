@@ -134,6 +134,8 @@ export default React.memo(GameBoard, (prevProps, nextProps) => {
     prevProps.board === nextProps.board &&
     prevProps.currentPlayer === nextProps.currentPlayer &&
     prevProps.showHints === nextProps.showHints &&
+    prevProps.showEvaluations === nextProps.showEvaluations &&
+    prevProps.moveEvaluations === nextProps.moveEvaluations &&
     prevProps.lastMove === nextProps.lastMove &&
     JSON.stringify(prevProps.possibleMoves) === JSON.stringify(nextProps.possibleMoves) &&
     JSON.stringify(prevProps.highlightPositions) === JSON.stringify(nextProps.highlightPositions)

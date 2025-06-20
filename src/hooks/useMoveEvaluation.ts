@@ -20,7 +20,6 @@ export function useMoveEvaluation(
     const evaluations = new Map<string, MoveEvaluation>();
 
     if (!player || possibleMoves.length === 0) {
-      console.log('Debug: useMoveEvaluation early return', { player, possibleMovesLength: possibleMoves.length });
       return evaluations;
     }
 
@@ -30,14 +29,10 @@ export function useMoveEvaluation(
       score: evaluateMove(board, move, player, difficulty),
     }));
 
-    console.log('Debug: calculated scores', { scores, difficulty, player });
-
     // Find min and max scores for normalization
     const minScore = Math.min(...scores.map((s) => s.score));
     const maxScore = Math.max(...scores.map((s) => s.score));
     const scoreRange = maxScore - minScore || 1; // Avoid division by zero
-    
-    console.log('Debug: score range', { minScore, maxScore, scoreRange });
 
     // Normalize scores to -100 to 100 range
     scores.forEach(({ position, score }) => {
