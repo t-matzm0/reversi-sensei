@@ -87,6 +87,7 @@ function GameBoard({
                 !cell &&
                 (() => {
                   const score = getEvaluationScore(rowIndex, colIndex);
+                  console.log(`Debug: row=${rowIndex}, col=${colIndex}, score=${score}, showEvaluations=${showEvaluations}, moveEvaluations=`, moveEvaluations);
                   return score !== null ? (
                     <div
                       className={`absolute text-xs md:text-sm font-semibold ${getEvaluationColor(
