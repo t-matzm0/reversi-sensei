@@ -82,18 +82,22 @@ function GameBoard({
               {showHints && isPossibleMove(rowIndex, colIndex) && !cell && (
                 <div className="absolute w-3 h-3 bg-yellow-400/50 rounded-full animate-pulse" />
               )}
-              {showEvaluations && isPossibleMove(rowIndex, colIndex) && !cell && (() => {
-                const score = getEvaluationScore(rowIndex, colIndex);
-                return score !== null ? (
-                  <div
-                    className={`absolute text-xs md:text-sm font-semibold ${
-                      getEvaluationColor(score)
-                    }`}
-                  >
-                    {score > 0 ? '+' : ''}{score}
-                  </div>
-                ) : null;
-              })()}
+              {showEvaluations &&
+                isPossibleMove(rowIndex, colIndex) &&
+                !cell &&
+                (() => {
+                  const score = getEvaluationScore(rowIndex, colIndex);
+                  return score !== null ? (
+                    <div
+                      className={`absolute text-xs md:text-sm font-semibold ${getEvaluationColor(
+                        score
+                      )}`}
+                    >
+                      {score > 0 ? '+' : ''}
+                      {score}
+                    </div>
+                  ) : null;
+                })()}
             </div>
           ))
         )}

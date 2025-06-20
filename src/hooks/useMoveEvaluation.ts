@@ -36,9 +36,8 @@ export function useMoveEvaluation(
 
     // Normalize scores to -100 to 100 range
     scores.forEach(({ position, score }) => {
-      const normalizedScore = scoreRange === 0 
-        ? 0 
-        : Math.round(((score - minScore) / scoreRange) * 200 - 100);
+      const normalizedScore =
+        scoreRange === 0 ? 0 : Math.round(((score - minScore) / scoreRange) * 200 - 100);
 
       const key = `${position.row}-${position.col}`;
       evaluations.set(key, {
