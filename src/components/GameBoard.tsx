@@ -79,29 +79,31 @@ function GameBoard({
                   `}
                 />
               )}
-              {isPossibleMove(rowIndex, colIndex) && !cell && (() => {
-                const score = getEvaluationScore(rowIndex, colIndex);
-                const hasEvaluation = showEvaluations && score !== null;
-                const hasHint = showHints;
+              {isPossibleMove(rowIndex, colIndex) &&
+                !cell &&
+                (() => {
+                  const score = getEvaluationScore(rowIndex, colIndex);
+                  const hasEvaluation = showEvaluations && score !== null;
+                  const hasHint = showHints;
 
-                if (hasEvaluation) {
-                  return (
-                    <div
-                      className={`absolute text-xs font-bold rounded px-1 py-0.5 ${getEvaluationColor(
-                        score
-                      )} shadow-sm border border-gray-300`}
-                    >
-                      {score > 0 ? '+' : ''}
-                      {score}
-                    </div>
-                  );
-                } else if (hasHint) {
-                  return (
-                    <div className="absolute w-4 h-4 bg-yellow-400/70 rounded-full animate-pulse" />
-                  );
-                }
-                return null;
-              })()}
+                  if (hasEvaluation) {
+                    return (
+                      <div
+                        className={`absolute text-xs font-bold rounded px-1 py-0.5 ${getEvaluationColor(
+                          score
+                        )} shadow-sm border border-gray-300`}
+                      >
+                        {score > 0 ? '+' : ''}
+                        {score}
+                      </div>
+                    );
+                  } else if (hasHint) {
+                    return (
+                      <div className="absolute w-4 h-4 bg-yellow-400/70 rounded-full animate-pulse" />
+                    );
+                  }
+                  return null;
+                })()}
             </div>
           ))
         )}

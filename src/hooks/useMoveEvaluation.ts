@@ -37,7 +37,7 @@ export function useMoveEvaluation(
     // Normalize scores to -100 to 100 range
     scores.forEach(({ position, score }) => {
       let normalizedScore: number;
-      
+
       if (scoreRange === 0) {
         // All scores are the same, show them as neutral (0)
         normalizedScore = 0;

@@ -32,7 +32,11 @@ export function useLocalStorage<T>(
         setStoredValue(valueToStore);
 
         if (typeof window !== 'undefined') {
-          window.localStorage.setItem(key, serialize(valueToStore));
+          if (valueToStore === undefined) {
+            window.localStorage.removeItem(key);
+          } else {
+            window.localStorage.setItem(key, serialize(valueToStore));
+          }
         }
       } catch (error) {
         console.error(`Error setting localStorage key "${key}":`, error);
