@@ -76,7 +76,7 @@ export function useGameState() {
       };
       addMoveToHistory(move);
       setLastMove({ row, col });
-      
+
       const nextPlayer = getOpponent(player);
       updateGameState(board, nextPlayer);
     },
@@ -92,12 +92,12 @@ export function useGameState() {
       // 人間の手のみを取り消し対象とする
       const newHistory = [...prev.history];
       let lastMove = newHistory.pop()!;
-      
+
       // 最後の手がAIの手なら、その前の人間の手を探す
       if (lastMove.isAI) {
         // AIの手は取り消さず、履歴に戻す
         newHistory.push(lastMove);
-        
+
         // 人間の手を探す
         for (let i = newHistory.length - 1; i >= 0; i--) {
           if (!newHistory[i].isAI) {
@@ -106,17 +106,17 @@ export function useGameState() {
             break;
           }
         }
-        
+
         // 人間の手が見つからない場合は何もしない
         if (lastMove.isAI) {
           return prev;
         }
       }
-      
+
       // ボードを復元
-      const newBoard = prev.board.map(row => [...row]);
+      const newBoard = prev.board.map((row) => [...row]);
       newBoard[lastMove.row][lastMove.col] = null;
-      
+
       // 反転された石を元に戻す
       lastMove.flippedPieces.forEach(({ row, col }) => {
         newBoard[row][col] = getOpponent(lastMove.player);
@@ -124,7 +124,7 @@ export function useGameState() {
 
       const scores = countPieces(newBoard);
       const possibleMoves = getAllValidMoves(newBoard, lastMove.player);
-      
+
       // 前の手があれば、それをlastMoveとして設定
       const previousMove = newHistory.length > 0 ? newHistory[newHistory.length - 1] : undefined;
       setLastMove(previousMove ? { row: previousMove.row, col: previousMove.col } : undefined);

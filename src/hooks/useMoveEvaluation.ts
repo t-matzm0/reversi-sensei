@@ -7,7 +7,7 @@ import { evaluateMove } from '@/lib/ai';
 interface MoveEvaluation {
   position: Position;
   score: number;
-  normalizedScore: number; // -100 to 100
+  normalizedScore: number; // 0 to 100
 }
 
 export function useMoveEvaluation(
@@ -35,19 +35,17 @@ export function useMoveEvaluation(
     const scoreRange = maxScore - minScore;
 
     // Normalize scores to -100 to 100 range
+    // Positive values = good moves for current player
+    // Negative values = bad moves for current player
     scores.forEach(({ position, score }) => {
       let normalizedScore: number;
 
       if (scoreRange === 0) {
         // All scores are the same, show them as neutral (0)
         normalizedScore = 0;
-      } else if (scoreRange < 10) {
-        // Small range: show relative differences but keep them closer to 0
-        const relativeScore = ((score - minScore) / scoreRange) * 50 - 25; // -25 to +25 range
-        normalizedScore = Math.round(relativeScore);
       } else {
-        // Normal range: use full -100 to +100 scale
-        normalizedScore = Math.round(((score - minScore) / scoreRange) * 200 - 100);
+        // Map to 0 to 100 range (always positive, higher is better)
+        normalizedScore = Math.round(((score - minScore) / scoreRange) * 100);
       }
 
       const key = `${position.row}-${position.col}`;

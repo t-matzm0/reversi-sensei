@@ -1,5 +1,12 @@
 import { Board, Position, Player } from '@/types/game';
-import { getAllValidMoves, makeMove, countPieces, getFlippedPieces, isGameOver, getWinner } from './gameLogic';
+import {
+  getAllValidMoves,
+  makeMove,
+  countPieces,
+  getFlippedPieces,
+  isGameOver,
+  getWinner,
+} from './gameLogic';
 import { POSITION_WEIGHTS, DIFFICULTY_SETTINGS, BOARD_SIZE } from '@/constants';
 import { isCornerPosition, isEdgePosition } from '@/utils';
 
@@ -31,7 +38,7 @@ export function evaluatePosition(board: Board, player: Player): number {
   const playerMoves = getAllValidMoves(board, player).length;
   const opponentMoves = getAllValidMoves(board, opponent).length;
   const mobilityScore = (playerMoves - opponentMoves) * 10;
-  
+
   // ゲームの進行度に応じて評価を調整
   if (totalPieces < 20) {
     // 序盤：位置とモビリティを重視
@@ -100,7 +107,7 @@ function minimax(
     return evaluatePosition(board, player);
   }
 
-  const currentPlayer = isMaximizing ? player : (player === 'black' ? 'white' : 'black');
+  const currentPlayer = isMaximizing ? player : player === 'black' ? 'white' : 'black';
   const validMoves = getAllValidMoves(board, currentPlayer);
 
   if (validMoves.length === 0) {

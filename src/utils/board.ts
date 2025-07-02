@@ -85,7 +85,6 @@ export function isEdgePosition(position: Position): boolean {
   );
 }
 
-
 /**
  * Get all adjacent positions around a given position
  */

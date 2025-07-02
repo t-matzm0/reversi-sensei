@@ -126,7 +126,7 @@ export default function Game() {
               allowUndo={allowUndo}
               onToggleAllowUndo={toggleAllowUndo}
               onUndo={undoLastMove}
-              canUndo={gameState.history.some(move => !move.isAI)}
+              canUndo={gameState.history.some((move) => !move.isAI)}
             />
           </div>
         </GameErrorBoundary>
