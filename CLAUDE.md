@@ -392,18 +392,19 @@ reversi_sensei/
 
 1. **Issueのステータス管理**
    - 作業開始前: **必ずIssueをIn Progressに設定**
+   - PR作成時: **IssueをIn Reviewに変更**
    - 実装完了後も**勝手にIssueをクローズしない**
-   - PRを作成し、「レビュー待ち」のコメントを追加
    - レビュー承認後、マージ時にIssueをクローズ
 
 2. **Issue対応の正しい流れ**
    - 作業開始: `gh issue edit [番号] --add-label "in progress"`でステータス変更
    - 実装作業: featureブランチで開発
-   - 実装完了: Issueにコメントで実装内容とコミット/PR番号を記載
+   - 実装完了: Issueにコメントで実装内容とコミット番号を記載
    - PR作成: Issue番号を含むPRを作成
-   - レビュー待ち: Issueは**オープンかつIn Progressのまま**維持
-   - マージ完了: PRマージ時に自動的にIssueクローズ
+   - レビュー待ち: `gh issue edit [番号] --remove-label "in progress" --add-label "in review"`でステータス変更
+   - マージ完了: PRマージ時に自動的にIssueクローズ（`Fixes #番号`使用）
 
 3. **GitHub Projects連携**
    - 可能な場合はGitHub Projectsでカンバン管理
    - To Do → In Progress → In Review → Doneの流れ
+   - ラベルがない場合は、コメントで状態を明示
