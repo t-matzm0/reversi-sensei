@@ -11,7 +11,7 @@ const config: Config = {
       colors: {
         'board-green': '#00a86b',
         'piece-black': '#1a1a1a',
-        'piece-white': '#f0f0f0',
+        'piece-white': '#e0e0e0',
       },
       animation: {
         flip: 'flip 0.6s ease-in-out',
