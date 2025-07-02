@@ -45,9 +45,10 @@ function GameBoard({
   };
 
   const getEvaluationColor = (score: number) => {
-    if (score >= 50) return 'text-white bg-green-600';
-    if (score >= 0) return 'text-white bg-green-500';
-    if (score >= -50) return 'text-white bg-orange-500';
+    // 0-100の範囲で、高いほど良い手
+    if (score >= 75) return 'text-white bg-green-600';
+    if (score >= 50) return 'text-white bg-green-500';
+    if (score >= 25) return 'text-white bg-orange-500';
     return 'text-white bg-red-500';
   };
 
@@ -93,7 +94,6 @@ function GameBoard({
                           score
                         )} shadow-sm border border-gray-300`}
                       >
-                        {score > 0 ? '+' : ''}
                         {score}
                       </div>
                     );

@@ -8,6 +8,7 @@ interface GameSettings {
   showEvaluations: boolean;
   isVsComputer: boolean;
   difficulty: Difficulty;
+  allowUndo: boolean;
 }
 
 const DEFAULT_SETTINGS: GameSettings = {
@@ -15,6 +16,7 @@ const DEFAULT_SETTINGS: GameSettings = {
   showEvaluations: false,
   isVsComputer: true,
   difficulty: 'medium',
+  allowUndo: true,
 };
 
 export function useGameSettings() {
@@ -42,14 +44,20 @@ export function useGameSettings() {
     [setSettings]
   );
 
+  const toggleAllowUndo = useCallback(() => {
+    setSettings((prev) => ({ ...prev, allowUndo: !prev.allowUndo }));
+  }, [setSettings]);
+
   return {
     showHints: settings.showHints,
     showEvaluations: settings.showEvaluations,
     isVsComputer: settings.isVsComputer,
     difficulty: settings.difficulty,
+    allowUndo: settings.allowUndo,
     toggleHints,
     toggleEvaluations,
     toggleGameMode,
     setDifficulty,
+    toggleAllowUndo,
   };
 }
