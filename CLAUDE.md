@@ -407,4 +407,5 @@ reversi_sensei/
 3. **GitHub Projects連携**
    - 可能な場合はGitHub Projectsでカンバン管理
    - To Do → In Progress → In Review → Doneの流れ
-   - ラベルがない場合は、コメントで状態を明示
+   - **注意**: 現在のリポジトリには `in progress` や `in review` ラベルが存在しない
+   - ラベルがない場合は、コメントで状態を明示（例：「作業開始しました」「PR #XX を作成しました。レビューをお願いします」）
