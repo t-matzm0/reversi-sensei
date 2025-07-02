@@ -89,7 +89,10 @@ Next.js、React、TypeScriptを使用して構築され、Firebase Hostingでホ
 - Issue管理のミス対応
   - Issue #4と#5を誤ってクローズしてしまったため再オープン
   - レビュー待ちのコメントを追加
-  - CLAUDE.mdにIssue管理ルールを追加（勝手にクローズしない）
+  - CLAUDE.mdにIssue管理ルールを追加：
+    - 作業開始前にIn Progressに設定する
+    - 実装完了後も勝手にクローズしない
+    - レビュー承認後のマージ時にクローズ
 
 【次回への申し送り】
 
@@ -387,14 +390,20 @@ reversi_sensei/
 
 ### Issue管理のルール
 
-1. **Issueのクローズタイミング**
+1. **Issueのステータス管理**
+   - 作業開始前: **必ずIssueをIn Progressに設定**
    - 実装完了後も**勝手にIssueをクローズしない**
    - PRを作成し、「レビュー待ち」のコメントを追加
    - レビュー承認後、マージ時にIssueをクローズ
-   - コミットメッセージに`Fixes #番号`を含める場合でも、手動クローズは避ける
 
-2. **Issue対応の流れ**
+2. **Issue対応の正しい流れ**
+   - 作業開始: `gh issue edit [番号] --add-label "in progress"`でステータス変更
+   - 実装作業: featureブランチで開発
    - 実装完了: Issueにコメントで実装内容とコミット/PR番号を記載
    - PR作成: Issue番号を含むPRを作成
-   - レビュー待ち: Issueは**オープンのまま**維持
+   - レビュー待ち: Issueは**オープンかつIn Progressのまま**維持
    - マージ完了: PRマージ時に自動的にIssueクローズ
+
+3. **GitHub Projects連携**
+   - 可能な場合はGitHub Projectsでカンバン管理
+   - To Do → In Progress → In Review → Doneの流れ
