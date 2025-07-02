@@ -10,24 +10,26 @@ import { useGameState, useGameSettings, useAIPlayer, useMoveEvaluation } from '@
 import { isValidMove, makeMove, getOpponent } from '@/lib/gameLogic';
 
 export default function Game() {
-  const { gameState, lastMove, setLastMove, updateGameState, resetGame } = useGameState();
+  const { gameState, lastMove, resetGame, makeGameMove, undoLastMove } = useGameState();
   const {
     showHints,
     showEvaluations,
     isVsComputer,
     difficulty,
+    allowUndo,
     toggleHints,
     toggleEvaluations,
     toggleGameMode,
     setDifficulty,
+    toggleAllowUndo,
   } = useGameSettings();
 
   const handleAIMove = useCallback(
     (board: Board, nextPlayer: 'black' | 'white', move: { row: number; col: number }) => {
-      setLastMove(move);
-      updateGameState(board, nextPlayer);
+      const player = getOpponent(nextPlayer);
+      makeGameMove(board, move.row, move.col, player, true);
     },
-    [setLastMove, updateGameState]
+    [makeGameMove]
   );
 
   const { isThinking } = useAIPlayer({
@@ -61,12 +63,9 @@ export default function Game() {
       }
 
       const newBoard = makeMove(board, row, col, currentPlayer);
-      const nextPlayer = getOpponent(currentPlayer);
-
-      setLastMove({ row, col });
-      updateGameState(newBoard, nextPlayer);
+      makeGameMove(newBoard, row, col, currentPlayer, false);
     },
-    [gameState, updateGameState, isVsComputer, isThinking, setLastMove]
+    [gameState, makeGameMove, isVsComputer, isThinking]
   );
 
   return (
@@ -124,6 +123,10 @@ export default function Game() {
               onToggleGameMode={toggleGameMode}
               onDifficultyChange={setDifficulty}
               isThinking={isThinking}
+              allowUndo={allowUndo}
+              onToggleAllowUndo={toggleAllowUndo}
+              onUndo={undoLastMove}
+              canUndo={gameState.history.some(move => !move.isAI)}
             />
           </div>
         </GameErrorBoundary>

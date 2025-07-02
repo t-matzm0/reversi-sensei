@@ -1,5 +1,6 @@
 import { Position } from '@/types/game';
 import { BOARD_SIZE } from '@/constants';
+import { isValidPosition } from '@/lib/gameLogic';
 
 /**
  * Convert board position to algebraic notation (e.g., {row: 0, col: 0} -> "A1")
@@ -84,12 +85,6 @@ export function isEdgePosition(position: Position): boolean {
   );
 }
 
-/**
- * Check if a position is valid (within board bounds)
- */
-export function isValidPosition(row: number, col: number): boolean {
-  return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
-}
 
 /**
  * Get all adjacent positions around a given position
