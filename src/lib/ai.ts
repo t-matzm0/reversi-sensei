@@ -1,11 +1,5 @@
 import { Board, Position, Player } from '@/types/game';
-import {
-  getAllValidMoves,
-  makeMove,
-  countPieces,
-  isGameOver,
-  getWinner,
-} from './gameLogic';
+import { getAllValidMoves, makeMove, countPieces, isGameOver, getWinner } from './gameLogic';
 import { POSITION_WEIGHTS, DIFFICULTY_SETTINGS, BOARD_SIZE } from '@/constants';
 
 export function evaluatePosition(board: Board, player: Player): number {
@@ -71,10 +65,10 @@ export function evaluateMove(
   // For medium and hard, use minimax for accurate evaluation
   const newBoard = makeMove(board, move.row, move.col, player);
   const depth = difficulty === 'medium' ? 2 : 3; // Shallower depth for display
-  
+
   // Use minimax to get the actual evaluation
   const score = minimax(newBoard, depth, false, player);
-  
+
   return score;
 }
 

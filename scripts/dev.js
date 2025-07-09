@@ -6,15 +6,16 @@ const os = require('os');
 // 環境を検出
 function detectEnvironment() {
   const platform = os.platform();
-  const isWSL = process.env.WSL_DISTRO_NAME || 
+  const isWSL =
+    process.env.WSL_DISTRO_NAME ||
     (platform === 'linux' && os.release().toLowerCase().includes('microsoft'));
-  
+
   return {
     platform,
     isWSL,
     isWindows: platform === 'win32',
     isMac: platform === 'darwin',
-    isLinux: platform === 'linux'
+    isLinux: platform === 'linux',
   };
 }
 
@@ -29,7 +30,7 @@ function startDevServer() {
     isWSL: env.isWSL,
     isWindows: env.isWindows,
     isMac: env.isMac,
-    isLinux: env.isLinux
+    isLinux: env.isLinux,
   });
 
   // WSL環境の場合は0.0.0.0でバインド
@@ -52,7 +53,7 @@ function startDevServer() {
   // Next.js開発サーバーを起動
   const child = spawn(command, args, {
     stdio: 'inherit',
-    shell: true
+    shell: true,
   });
 
   child.on('error', (error) => {

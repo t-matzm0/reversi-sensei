@@ -45,7 +45,7 @@ export function useMoveEvaluation(
       // 25 to 50: Good move
       // 50 to 100: Very good move
       // 100: Winning move
-      
+
       // Clamp the score to a reasonable range based on typical evaluation values
       // Typical scores range from -1000 to 1000 for normal moves
       // Corner moves can be around 200-500
