@@ -41,7 +41,8 @@ export default function Game() {
 
   const moveEvaluations = useMoveEvaluation(
     gameState.board,
-    gameState.currentPlayer,
+    // AIのターン時は評価値を計算しない
+    isVsComputer && gameState.currentPlayer === 'white' ? null : gameState.currentPlayer,
     gameState.possibleMoves,
     difficulty
   );

@@ -3,12 +3,10 @@ import {
   getAllValidMoves,
   makeMove,
   countPieces,
-  getFlippedPieces,
   isGameOver,
   getWinner,
 } from './gameLogic';
 import { POSITION_WEIGHTS, DIFFICULTY_SETTINGS, BOARD_SIZE } from '@/constants';
-import { isCornerPosition, isEdgePosition } from '@/utils';
 
 export function evaluatePosition(board: Board, player: Player): number {
   if (isGameOver(board)) {
@@ -61,37 +59,22 @@ export function evaluateMove(
   player: Player,
   difficulty: 'easy' | 'medium' | 'hard'
 ): number {
-  const flippedCount = getFlippedPieces(board, move.row, move.col, player).length;
+  // const flippedCount = getFlippedPieces(board, move.row, move.col, player).length;
 
   if (difficulty === 'easy') {
-    return Math.random() * 10 + flippedCount;
+    // Easy mode: simple evaluation with randomness
+    const newBoard = makeMove(board, move.row, move.col, player);
+    const baseScore = evaluatePosition(newBoard, player);
+    return baseScore + Math.random() * 100 - 50; // Add randomness
   }
 
+  // For medium and hard, use minimax for accurate evaluation
   const newBoard = makeMove(board, move.row, move.col, player);
-  let score = evaluatePosition(newBoard, player);
-
-  if (difficulty === 'medium') {
-    score += flippedCount * 10;
-  } else if (difficulty === 'hard') {
-    score += flippedCount * 5;
-
-    if (isCornerPosition(move)) {
-      score += 200;
-    }
-
-    if (isEdgePosition(move)) {
-      score += 50;
-    }
-
-    const { black, white } = countPieces(newBoard);
-    const totalPieces = black + white;
-    if (totalPieces < 20) {
-      score -= (player === 'black' ? black : white) * 2;
-    } else if (totalPieces > 50) {
-      score += (player === 'black' ? black : white) * 5;
-    }
-  }
-
+  const depth = difficulty === 'medium' ? 2 : 3; // Shallower depth for display
+  
+  // Use minimax to get the actual evaluation
+  const score = minimax(newBoard, depth, false, player);
+  
   return score;
 }
 
