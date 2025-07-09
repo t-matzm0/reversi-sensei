@@ -7,7 +7,7 @@ import { evaluateMove } from '@/lib/ai';
 interface MoveEvaluation {
   position: Position;
   score: number;
-  normalizedScore: number; // -100 to 100
+  normalizedScore: number; // 0 to 100
 }
 
 export function useMoveEvaluation(
@@ -29,25 +29,37 @@ export function useMoveEvaluation(
       score: evaluateMove(board, move, player, difficulty),
     }));
 
-    // Find min and max scores for normalization
-    const minScore = Math.min(...scores.map((s) => s.score));
-    const maxScore = Math.max(...scores.map((s) => s.score));
-    const scoreRange = maxScore - minScore;
+    // Calculate scores without normalization
+    // We'll use absolute evaluation instead of relative
 
-    // Normalize scores to -100 to 100 range
+    // Normalize scores to display range
+    // Instead of relative normalization (0-100), use absolute evaluation
     scores.forEach(({ position, score }) => {
       let normalizedScore: number;
 
-      if (scoreRange === 0) {
-        // All scores are the same, show them as neutral (0)
-        normalizedScore = 0;
-      } else if (scoreRange < 10) {
-        // Small range: show relative differences but keep them closer to 0
-        const relativeScore = ((score - minScore) / scoreRange) * 50 - 25; // -25 to +25 range
-        normalizedScore = Math.round(relativeScore);
+      // Use absolute evaluation scale:
+      // -100: Terrible move (will lose the game)
+      // -50 to -100: Very bad move
+      // -25 to -50: Bad move
+      // -25 to 25: Neutral move
+      // 25 to 50: Good move
+      // 50 to 100: Very good move
+      // 100: Winning move
+
+      // Clamp the score to a reasonable range based on typical evaluation values
+      // Typical scores range from -1000 to 1000 for normal moves
+      // Corner moves can be around 200-500
+      // Winning/losing positions are 10000/-10000
+      if (Math.abs(score) >= 10000) {
+        // Game-ending position
+        normalizedScore = score > 0 ? 100 : -100;
+      } else if (Math.abs(score) >= 1000) {
+        // Extremely strong position
+        normalizedScore = score > 0 ? 90 : -90;
       } else {
-        // Normal range: use full -100 to +100 scale
-        normalizedScore = Math.round(((score - minScore) / scoreRange) * 200 - 100);
+        // Normal positions: map score to -80 to 80 range
+        // This preserves absolute evaluation while keeping display reasonable
+        normalizedScore = Math.round(Math.max(-80, Math.min(80, score / 10)));
       }
 
       const key = `${position.row}-${position.col}`;

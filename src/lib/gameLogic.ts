@@ -20,7 +20,9 @@ export function isValidPosition(row: number, col: number): boolean {
 }
 
 export function getOpponent(player: Player): Player {
-  return player === 'black' ? 'white' : 'black';
+  if (player === 'black') return 'white';
+  if (player === 'white') return 'black';
+  return null;
 }
 
 const directions = [

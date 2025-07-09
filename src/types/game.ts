@@ -9,6 +9,7 @@ export interface Position {
 export interface Move extends Position {
   player: Player;
   flippedPieces: Position[];
+  isAI?: boolean;
 }
 
 export interface GameState {

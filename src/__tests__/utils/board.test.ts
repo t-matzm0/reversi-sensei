@@ -2,10 +2,10 @@ import {
   isCornerPosition,
   isEdgePosition,
   getAdjacentPositions,
-  isValidPosition,
   positionToString,
   stringToPosition,
 } from '@/utils/board';
+import { isValidPosition } from '@/lib/gameLogic';
 
 describe('board utilities', () => {
   describe('isCornerPosition', () => {
