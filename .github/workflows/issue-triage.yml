@@ -23,12 +23,6 @@ jobs:
 
             const labelsToAdd = [];
 
-            // Auto-add claude-fix label if requested
-            if (body.includes('claude codeによる自動修正を希望する') ||
-                body.includes('claude codeによる自動実装を希望する')) {
-              labelsToAdd.push('claude-fix');
-            }
-
             // Category detection
             if (content.includes('ai') || content.includes('難易度') || content.includes('コンピュータ')) {
               labelsToAdd.push('ai');
@@ -86,7 +80,7 @@ jobs:
             ## 次のステップ
             1. メンテナーがIssueを確認します
             2. 必要に応じて追加の情報をお伺いすることがあります
-            3. \`claude-fix\`ラベルが付いている場合、Claude Codeが自動修正を試みます
+            3. 対応が決まり次第、担当者がアサインされます
 
             ご不明な点があればお気軽にコメントしてください！`
               });

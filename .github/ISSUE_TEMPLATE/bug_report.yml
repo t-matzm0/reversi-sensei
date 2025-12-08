@@ -95,11 +95,3 @@ body:
       label: コンソールログ
       description: ブラウザのコンソールにエラーがあれば貼り付けてください
       render: shell
-
-  - type: checkboxes
-    id: auto-fix
-    attributes:
-      label: 自動修正
-      description: Claude Codeによる自動修正を希望しますか？
-      options:
-        - label: Claude Codeによる自動修正を希望する（`claude-fix`ラベルが付与されます）

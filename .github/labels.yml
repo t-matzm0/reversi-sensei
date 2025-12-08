@@ -35,23 +35,6 @@
   color: e11d21
   description: 修正が必要
 
-# 自動化関連
-- name: claude-fix
-  color: 7057ff
-  description: Claude Codeによる自動修正対象
-
-- name: auto-generated
-  color: bfdadc
-  description: 自動生成されたPR
-
-- name: auto-merge
-  color: 0e8a16
-  description: 自動マージ対象
-
-- name: quality-passed
-  color: 2cbe4e
-  description: 品質チェック通過
-
 - name: approved
   color: 0e8a16
   description: レビュー承認済み

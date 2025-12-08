@@ -64,11 +64,3 @@ body:
     attributes:
       label: 追加情報
       description: その他、参考になる情報があれば記載してください
-
-  - type: checkboxes
-    id: auto-implement
-    attributes:
-      label: 自動実装
-      description: Claude Codeによる自動実装を希望しますか？
-      options:
-        - label: Claude Codeによる自動実装を希望する（`claude-fix`ラベルが付与されます）
