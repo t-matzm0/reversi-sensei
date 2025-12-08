@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: ディスカッション
+    url: https://github.com/t-matzm0/reversi-sensei/discussions
+    about: 質問やアイデアの議論はこちら
+  - name: ドキュメント
+    url: https://github.com/t-matzm0/reversi-sensei/blob/main/README.md
+    about: READMEとドキュメント

@@ -1,0 +1,212 @@
+name: Auto Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  code-review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            **/*.ts
+            **/*.tsx
+            **/*.js
+            **/*.jsx
+
+      - name: Run quality checks
+        id: quality
+        run: |
+          echo "## Quality Check Results" > quality-report.md
+          echo "" >> quality-report.md
+
+          # ESLint
+          echo "### ESLint" >> quality-report.md
+          if npm run lint 2>&1 | tee lint-output.txt; then
+            echo "✅ No ESLint errors" >> quality-report.md
+            echo "lint_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ ESLint errors found:" >> quality-report.md
+            echo '```' >> quality-report.md
+            cat lint-output.txt >> quality-report.md
+            echo '```' >> quality-report.md
+            echo "lint_passed=false" >> $GITHUB_OUTPUT
+          fi
+          echo "" >> quality-report.md
+
+          # TypeScript
+          echo "### TypeScript" >> quality-report.md
+          if npm run type-check 2>&1 | tee type-output.txt; then
+            echo "✅ No type errors" >> quality-report.md
+            echo "type_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Type errors found:" >> quality-report.md
+            echo '```' >> quality-report.md
+            cat type-output.txt >> quality-report.md
+            echo '```' >> quality-report.md
+            echo "type_passed=false" >> $GITHUB_OUTPUT
+          fi
+          echo "" >> quality-report.md
+
+          # Tests
+          echo "### Tests" >> quality-report.md
+          if npm test 2>&1 | tee test-output.txt; then
+            echo "✅ All tests passed" >> quality-report.md
+            echo "test_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ Some tests failed:" >> quality-report.md
+            echo '```' >> quality-report.md
+            tail -50 test-output.txt >> quality-report.md
+            echo '```' >> quality-report.md
+            echo "test_passed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Claude Code Review
+        if: steps.changed-files.outputs.any_changed == 'true'
+        id: claude-review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # Install Claude Code CLI
+          npm install -g @anthropic-ai/claude-code || true
+
+          # Get the diff
+          git diff origin/${{ github.base_ref }}...HEAD -- ${{ steps.changed-files.outputs.all_changed_files }} > changes.diff
+
+          if [ -s changes.diff ]; then
+            # Run Claude Code review
+            claude -p "以下のコード変更をレビューしてください。
+
+          ## レビュー観点
+          1. **バグの可能性**: ロジックエラー、エッジケースの見落とし
+          2. **セキュリティ**: XSS、インジェクション、機密情報の露出
+          3. **パフォーマンス**: 非効率な処理、メモリリーク
+          4. **可読性**: コードの明確さ、命名規則
+          5. **ベストプラクティス**: React/Next.js/TypeScriptのベストプラクティス
+
+          ## 出力形式
+          - 重要度: 🔴 Critical / 🟡 Warning / 🔵 Info
+          - 問題のあるコードの箇所を具体的に指摘
+          - 改善案を提示
+
+          ## 変更差分
+          \`\`\`diff
+          $(cat changes.diff)
+          \`\`\`" --output-format text > claude-review.md 2>&1 || echo "Claude review failed" > claude-review.md
+          else
+            echo "No code changes to review" > claude-review.md
+          fi
+
+      - name: Post review comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let qualityReport = '';
+            let claudeReview = '';
+
+            try {
+              qualityReport = fs.readFileSync('quality-report.md', 'utf8');
+            } catch (e) {
+              qualityReport = 'Quality report not available';
+            }
+
+            try {
+              claudeReview = fs.readFileSync('claude-review.md', 'utf8');
+            } catch (e) {
+              claudeReview = 'Claude review not available';
+            }
+
+            const body = `## 🤖 自動コードレビュー
+
+            ${qualityReport}
+
+            ---
+
+            ### AI Code Review
+
+            ${claudeReview}
+
+            ---
+            *このレビューはGitHub ActionsとClaude Codeによって自動生成されました*`;
+
+            // Find existing bot comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number
+            });
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('🤖 自動コードレビュー')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body
+              });
+            }
+
+      - name: Add review labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const lintPassed = '${{ steps.quality.outputs.lint_passed }}' === 'true';
+            const typePassed = '${{ steps.quality.outputs.type_passed }}' === 'true';
+            const testPassed = '${{ steps.quality.outputs.test_passed }}' === 'true';
+
+            const labels = [];
+
+            if (lintPassed && typePassed && testPassed) {
+              labels.push('quality-passed');
+            } else {
+              labels.push('needs-fixes');
+            }
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels
+              });
+            }

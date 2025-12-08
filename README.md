@@ -17,6 +17,7 @@
 - **スタイリング**: Tailwind CSS
 - **開発ツール**: ESLint, Prettier, Husky
 - **CI/CD**: GitHub Actions
+- **自動化**: Claude Code による Issue 駆動開発
 
 ## セットアップ
 
@@ -109,13 +110,23 @@ reversi-sensei/
 
 ## 開発フロー
 
+### 手動開発フロー
+
 1. **機能開発**: `develop`ブランチから`feature/xxx`ブランチを作成
 2. **プルリクエスト**: `feature/xxx` → `develop`
 3. **検証環境**: `develop`ブランチに自動デプロイ
 4. **本番リリース**: `develop` → `main`のプルリクエスト
 5. **本番環境**: `main`ブランチに自動デプロイ
 
-詳細は [DEPLOYMENT.md](./DEPLOYMENT.md) を参照してください。
+### 自動化フロー（Issue駆動開発）
+
+1. **Issue作成**: バグ報告や機能リクエストをIssueで作成
+2. **自動修正**: `claude-fix`ラベルでClaude Codeが自動的にPRを作成
+3. **自動レビュー**: PRに対してClaude Codeが自動コードレビュー
+4. **自動マージ**: レビュー承認後、条件を満たせば自動マージ
+5. **自動デプロイ**: マージ後、該当環境に自動デプロイ
+
+詳細は [DEPLOYMENT.md](./DEPLOYMENT.md) および [AUTOMATION.md](./AUTOMATION.md) を参照してください。
 
 ## 今後の機能追加予定
 
@@ -132,3 +143,18 @@ MIT License
 ## 貢献
 
 プルリクエストや課題報告を歓迎します！
+
+### Issue の作成方法
+
+1. [Issues](../../issues) から新しいIssueを作成
+2. テンプレート（バグ報告/機能リクエスト）を選択
+3. 詳細を記入
+4. 自動修正を希望する場合は「Claude Codeによる自動修正を希望する」にチェック
+
+### 必要なSecrets（メンテナー向け）
+
+| Secret名                              | 説明                            |
+| ------------------------------------- | ------------------------------- |
+| `ANTHROPIC_API_KEY`                   | Claude API キー                 |
+| `FIREBASE_TOKEN`                      | Firebase CLIトークン            |
+| `FIREBASE_SERVICE_ACCOUNT_PRODUCTION` | Firebase サービスアカウントJSON |

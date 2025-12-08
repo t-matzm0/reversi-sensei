@@ -1,0 +1,74 @@
+name: 機能リクエスト
+description: 新機能や改善を提案する
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        機能リクエストありがとうございます！アイデアを詳しく教えてください。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 解決したい問題
+      description: この機能で解決したい問題は何ですか？
+      placeholder: 例：現在のAIが弱すぎて練習にならない
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 提案する解決策
+      description: どのような機能を追加すればよいと思いますか？
+      placeholder: 例：より強いAIモードを追加する
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 代替案
+      description: 他に考えられる解決策があれば教えてください
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度
+      description: この機能の優先度はどのくらいだと思いますか？
+      options:
+        - 高（必須機能）
+        - 中（あると便利）
+        - 低（余裕があれば）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: カテゴリ
+      description: この機能はどのカテゴリに属しますか？
+      options:
+        - ゲームロジック
+        - AI機能
+        - UI/UX
+        - パフォーマンス
+        - アクセシビリティ
+        - その他
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 追加情報
+      description: その他、参考になる情報があれば記載してください
+
+  - type: checkboxes
+    id: auto-implement
+    attributes:
+      label: 自動実装
+      description: Claude Codeによる自動実装を希望しますか？
+      options:
+        - label: Claude Codeによる自動実装を希望する（`claude-fix`ラベルが付与されます）

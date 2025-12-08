@@ -1,0 +1,105 @@
+name: バグ報告
+description: バグや不具合を報告する
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        バグ報告ありがとうございます。できるだけ詳しく記載してください。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: バグの説明
+      description: どのようなバグが発生しましたか？
+      placeholder: 例：ゲーム開始時に画面が真っ白になる
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      description: バグを再現する手順を教えてください
+      placeholder: |
+        1. ゲームを開始する
+        2. '...' をクリックする
+        3. '...' を選択する
+        4. エラーが発生する
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待する動作
+      description: 本来どのように動作すべきですか？
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の動作
+      description: 実際にはどのように動作しましたか？
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 環境
+      description: どの環境で発生しましたか？
+      options:
+        - 本番環境 (reversi-sensei.web.app)
+        - ステージング環境 (reversi-sensei-staging.web.app)
+        - ローカル開発環境
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: ブラウザ
+      description: 使用しているブラウザを選択してください
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - その他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: デバイス
+      options:
+        - PC
+        - スマートフォン
+        - タブレット
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: スクリーンショット
+      description: 可能であればスクリーンショットを添付してください
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: コンソールログ
+      description: ブラウザのコンソールにエラーがあれば貼り付けてください
+      render: shell
+
+  - type: checkboxes
+    id: auto-fix
+    attributes:
+      label: 自動修正
+      description: Claude Codeによる自動修正を希望しますか？
+      options:
+        - label: Claude Codeによる自動修正を希望する（`claude-fix`ラベルが付与されます）

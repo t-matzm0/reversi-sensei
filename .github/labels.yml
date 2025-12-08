@@ -1,0 +1,99 @@
+# Issue/PRのラベル定義
+# GitHub CLIでインポート: gh label import labels.yml
+
+# Issue タイプ
+- name: bug
+  color: d73a4a
+  description: バグ報告
+
+- name: enhancement
+  color: a2eeef
+  description: 新機能・改善リクエスト
+
+- name: documentation
+  color: 0075ca
+  description: ドキュメント関連
+
+- name: question
+  color: d876e3
+  description: 質問
+
+# ステータス
+- name: triage
+  color: ededed
+  description: トリアージ待ち
+
+- name: in-progress
+  color: fbca04
+  description: 対応中
+
+- name: needs-review
+  color: 0e8a16
+  description: レビュー待ち
+
+- name: needs-fixes
+  color: e11d21
+  description: 修正が必要
+
+# 自動化関連
+- name: claude-fix
+  color: 7057ff
+  description: Claude Codeによる自動修正対象
+
+- name: auto-generated
+  color: bfdadc
+  description: 自動生成されたPR
+
+- name: auto-merge
+  color: 0e8a16
+  description: 自動マージ対象
+
+- name: quality-passed
+  color: 2cbe4e
+  description: 品質チェック通過
+
+- name: approved
+  color: 0e8a16
+  description: レビュー承認済み
+
+- name: merged
+  color: 6f42c1
+  description: マージ済み
+
+# 優先度
+- name: priority-high
+  color: b60205
+  description: 優先度：高
+
+- name: priority-medium
+  color: fbca04
+  description: 優先度：中
+
+- name: priority-low
+  color: 0e8a16
+  description: 優先度：低
+
+# カテゴリ
+- name: game-logic
+  color: 1d76db
+  description: ゲームロジック関連
+
+- name: ai
+  color: 5319e7
+  description: AI関連
+
+- name: ui-ux
+  color: f9d0c4
+  description: UI/UX関連
+
+- name: performance
+  color: fef2c0
+  description: パフォーマンス関連
+
+- name: ci-cd
+  color: bfd4f2
+  description: CI/CD関連
+
+- name: testing
+  color: d4c5f9
+  description: テスト関連

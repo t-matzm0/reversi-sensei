@@ -1,0 +1,93 @@
+name: Issue Triage
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Auto-label based on title and body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+            const content = title + ' ' + body;
+
+            const labelsToAdd = [];
+
+            // Auto-add claude-fix label if requested
+            if (body.includes('claude codeによる自動修正を希望する') ||
+                body.includes('claude codeによる自動実装を希望する')) {
+              labelsToAdd.push('claude-fix');
+            }
+
+            // Category detection
+            if (content.includes('ai') || content.includes('難易度') || content.includes('コンピュータ')) {
+              labelsToAdd.push('ai');
+            }
+            if (content.includes('ui') || content.includes('デザイン') || content.includes('表示') || content.includes('画面')) {
+              labelsToAdd.push('ui-ux');
+            }
+            if (content.includes('パフォーマンス') || content.includes('遅い') || content.includes('重い')) {
+              labelsToAdd.push('performance');
+            }
+            if (content.includes('ゲーム') || content.includes('ルール') || content.includes('石') || content.includes('盤面')) {
+              labelsToAdd.push('game-logic');
+            }
+            if (content.includes('テスト') || content.includes('test')) {
+              labelsToAdd.push('testing');
+            }
+
+            // Priority detection
+            if (content.includes('緊急') || content.includes('クラッシュ') || content.includes('動かない')) {
+              labelsToAdd.push('priority-high');
+            }
+
+            if (labelsToAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labelsToAdd
+              });
+            }
+
+      - name: Welcome first-time contributors
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+
+            // Check if this is their first issue
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              creator: issue.user.login,
+              state: 'all'
+            });
+
+            if (issues.length === 1) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `👋 @${issue.user.login} さん、Issue作成ありがとうございます！
+
+            このプロジェクトへの初めてのIssueですね。
+
+            ## 次のステップ
+            1. メンテナーがIssueを確認します
+            2. 必要に応じて追加の情報をお伺いすることがあります
+            3. \`claude-fix\`ラベルが付いている場合、Claude Codeが自動修正を試みます
+
+            ご不明な点があればお気軽にコメントしてください！`
+              });
+            }
