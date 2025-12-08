@@ -36,7 +36,7 @@ function GameInfo({
   isThinking,
 }: GameInfoProps) {
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xs">
+    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xs text-gray-800">
       <h2 className="text-2xl font-bold mb-4 text-center">ゲーム情報</h2>
 
       <div className="mb-6">
