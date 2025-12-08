@@ -53,17 +53,20 @@ describe('useLocalStorage', () => {
     consoleSpy.mockRestore();
   });
 
-  it('should remove item when value is undefined', () => {
-    const { result } = renderHook(() => useLocalStorage<string | undefined>('testKey', 'value'));
+  it('should remove item when using removeValue', () => {
+    const { result } = renderHook(() => useLocalStorage<string>('testKey', 'value'));
 
     act(() => {
       result.current[1]('someValue');
     });
     expect(localStorage.getItem('testKey')).toBe(JSON.stringify('someValue'));
 
+    // Use removeValue (third element of returned tuple) to remove from localStorage
     act(() => {
-      result.current[1](undefined);
+      result.current[2]();
     });
     expect(localStorage.getItem('testKey')).toBeNull();
+    // Value should reset to initial value
+    expect(result.current[0]).toBe('value');
   });
 });

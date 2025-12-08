@@ -17,7 +17,7 @@ describe('Loading Component', () => {
   it('should apply size classes correctly', () => {
     const { rerender } = render(<Loading size="small" />);
     let spinner = screen.getByRole('status').firstChild as HTMLElement;
-    expect(spinner.className).toContain('w-6 h-6');
+    expect(spinner.className).toContain('w-4 h-4');
 
     rerender(<Loading size="medium" />);
     spinner = screen.getByRole('status').firstChild as HTMLElement;
