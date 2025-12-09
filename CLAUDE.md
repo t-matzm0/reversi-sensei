@@ -285,6 +285,54 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
   - AIのさらなる改善（安定石、辺の形、開放度などの実装）
   - 待った機能のテストケース追加（低優先度）
 
+### 2025年12月10日
+
+【作業内容】
+
+- **Issue #16（評価値が正確に計算されていない）の再対応**
+
+  - PR #17がレビューで却下された問題を修正
+  - 却下理由: 評価値が正しくない、lintエラー、ハイドレーションエラー
+
+- **評価関数の根本的な改善** (`src/lib/ai.ts`)
+
+  - 7要素の標準的なオセロ評価関数を実装（研究論文に基づく）:
+    1. Coin Parity（石数差）: 終盤で重要、序盤は無視
+    2. Mobility（モビリティ）: 序盤で重要、終盤は軽視
+    3. Corner Occupancy（角占有）: 常に最重要（重み801）
+    4. Corner Closeness（X打ち/C打ち）: 常に重要（重み382）
+    5. Stability（確定石）: 常に重要、終盤で増加
+    6. Frontier Discs（境界石）: 少ないほど良い
+    7. Positional（位置評価）: 序盤で重視
+  - ゲーム段階に応じた重み付け（線形補間で変化）
+  - 参考資料:
+    - [Heuristic Function for Reversi/Othello](https://kartikkukreja.wordpress.com/2013/03/30/heuristic-function-for-reversiothello/)
+    - [arminkz/Reversi GitHub](https://github.com/arminkz/Reversi)
+
+- **評価値表示の改善** (`src/hooks/useMoveEvaluation.ts`)
+
+  - 差が小さい時（序盤）は0に近く表示
+  - 差が大きい時（角が取れる場面など）は明確に表示
+  - scalingFactor = min(1, scoreRange / 100) で調整
+
+- **ハイドレーションエラー修正**
+
+  - `useLocalStorage.ts`: useState初期化をuseEffectに移動
+  - `useMoveEvaluation.ts`: useMemoからuseState + useEffectに変更
+
+- **動作確認**
+  - Lint: ✅ エラー/警告なし
+  - Type-check: ✅ エラーなし
+  - Test: ✅ 全41テスト合格
+  - 手動テスト: ✅ 評価値に従って打つと勝てることを確認
+
+【次回への申し送り】
+
+- 他のオセロソフトとの評価値比較検証（ユーザーが実施予定）
+- 検証結果に基づく追加調整が必要な場合あり
+- PR #17の再オープンまたは新規PR作成
+- Issue #16のクローズ（検証完了後）
+
 ### 2025年7月9日
 
 【作業内容】
@@ -644,6 +692,7 @@ reversi_sensei/
 3. 静的テストがすべてパスしたか
 4. コミットメッセージはConventional Commits形式か
 5. 関連する変更がすべて含まれているか
+6. **CLAUDE.mdに作業記録を追加したか**（必須）
 
 ### Issue管理のルール
 

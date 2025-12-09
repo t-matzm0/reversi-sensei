@@ -1,13 +1,13 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Board, Player, Position } from '@/types/game';
 import { evaluateMove } from '@/lib/ai';
 
 interface MoveEvaluation {
   position: Position;
   score: number;
-  normalizedScore: number; // 0 to 100
+  normalizedScore: number; // -100 to 100 (absolute evaluation)
 }
 
 export function useMoveEvaluation(
@@ -16,11 +16,14 @@ export function useMoveEvaluation(
   possibleMoves: Position[],
   difficulty: 'easy' | 'medium' | 'hard' = 'medium'
 ): Map<string, MoveEvaluation> {
-  return useMemo(() => {
-    const evaluations = new Map<string, MoveEvaluation>();
+  const [evaluations, setEvaluations] = useState<Map<string, MoveEvaluation>>(() => new Map());
+
+  useEffect(() => {
+    const newEvaluations = new Map<string, MoveEvaluation>();
 
     if (!player || possibleMoves.length === 0) {
-      return evaluations;
+      setEvaluations(newEvaluations);
+      return;
     }
 
     // Calculate scores for all possible moves
@@ -29,47 +32,47 @@ export function useMoveEvaluation(
       score: evaluateMove(board, move, player, difficulty),
     }));
 
-    // Calculate scores without normalization
-    // We'll use absolute evaluation instead of relative
+    // 最大値と最小値を取得（相対的な差を計算するため）
+    const maxScore = Math.max(...scores.map((s) => s.score));
+    const minScore = Math.min(...scores.map((s) => s.score));
+    const scoreRange = maxScore - minScore;
 
-    // Normalize scores to display range
-    // Instead of relative normalization (0-100), use absolute evaluation
+    // 評価値の差が小さい場合は全体的に0に近づける
+    // 差が大きい場合は差を表示する
+    // これにより、序盤（差が小さい）は0に近く、角が取れる場面（差が大きい）は明確に表示される
+    const scalingFactor = Math.min(1, scoreRange / 100); // scoreRangeが100以上で完全表示
+
     scores.forEach(({ position, score }) => {
       let normalizedScore: number;
 
-      // Use absolute evaluation scale:
-      // -100: Terrible move (will lose the game)
-      // -50 to -100: Very bad move
-      // -25 to -50: Bad move
-      // -25 to 25: Neutral move
-      // 25 to 50: Good move
-      // 50 to 100: Very good move
-      // 100: Winning move
-
-      // Clamp the score to a reasonable range based on typical evaluation values
-      // Typical scores range from -1000 to 1000 for normal moves
-      // Corner moves can be around 200-500
-      // Winning/losing positions are 10000/-10000
+      // 勝敗確定
       if (Math.abs(score) >= 10000) {
-        // Game-ending position
         normalizedScore = score > 0 ? 100 : -100;
-      } else if (Math.abs(score) >= 1000) {
-        // Extremely strong position
-        normalizedScore = score > 0 ? 90 : -90;
+      } else if (scoreRange === 0) {
+        // 全ての手が同じ評価
+        normalizedScore = 0;
       } else {
-        // Normal positions: map score to -80 to 80 range
-        // This preserves absolute evaluation while keeping display reasonable
-        normalizedScore = Math.round(Math.max(-80, Math.min(80, score / 10)));
+        // 相対評価: 平均からの差分
+        const avgScore = (maxScore + minScore) / 2;
+        const diffFromAvg = score - avgScore;
+
+        // 差分を-100〜100にスケーリング
+        // scoreRangeが小さいほど、scalingFactorが小さくなり、0に近づく
+        normalizedScore = Math.round(
+          Math.max(-100, Math.min(100, (diffFromAvg / (scoreRange / 2)) * 100 * scalingFactor))
+        );
       }
 
       const key = `${position.row}-${position.col}`;
-      evaluations.set(key, {
+      newEvaluations.set(key, {
         position,
         score,
         normalizedScore,
       });
     });
 
-    return evaluations;
+    setEvaluations(newEvaluations);
   }, [board, player, possibleMoves, difficulty]);
+
+  return evaluations;
 }

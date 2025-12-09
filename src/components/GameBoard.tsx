@@ -45,13 +45,12 @@ function GameBoard({
   };
 
   const getEvaluationColor = (score: number) => {
-    // -100から100の範囲で、高いほど良い手
-    if (score >= 50) return 'text-white bg-green-600'; // 非常に良い手
-    if (score >= 25) return 'text-white bg-green-500'; // 良い手
-    if (score >= 0) return 'text-white bg-blue-500'; // やや良い手
-    if (score >= -25) return 'text-white bg-orange-500'; // やや悪い手
-    if (score >= -50) return 'text-white bg-red-500'; // 悪い手
-    return 'text-white bg-red-700'; // 非常に悪い手
+    // -100〜+100の絶対評価（0が互角）
+    if (score >= 30) return 'text-white bg-green-600'; // 有利
+    if (score >= 10) return 'text-white bg-green-500'; // やや有利
+    if (score >= -10) return 'text-white bg-blue-500'; // 互角
+    if (score >= -30) return 'text-white bg-orange-500'; // やや不利
+    return 'text-white bg-red-500'; // 不利
   };
 
   return (

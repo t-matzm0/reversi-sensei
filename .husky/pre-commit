@@ -1,4 +1,17 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# CLAUDE.mdの更新チェック（作業記録の記載漏れ防止）
+if ! git diff --cached --name-only | grep -q "CLAUDE.md"; then
+  echo ""
+  echo "❌ エラー: CLAUDE.mdが更新されていません"
+  echo ""
+  echo "コミット前に作業記録をCLAUDE.mdに追加してください。"
+  echo "詳細は CLAUDE.md の「開発作業記録の更新ルール」を参照。"
+  echo ""
+  echo "このチェックをスキップする場合: git commit --no-verify"
+  echo ""
+  exit 1
+fi
+
 npx lint-staged
