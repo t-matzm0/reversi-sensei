@@ -45,10 +45,12 @@ function GameBoard({
   };
 
   const getEvaluationColor = (score: number) => {
-    if (score >= 50) return 'text-white bg-green-600';
-    if (score >= 0) return 'text-white bg-green-500';
-    if (score >= -50) return 'text-white bg-orange-500';
-    return 'text-white bg-red-500';
+    // -100〜+100の絶対評価（0が互角）
+    if (score >= 30) return 'text-white bg-green-600'; // 有利
+    if (score >= 10) return 'text-white bg-green-500'; // やや有利
+    if (score >= -10) return 'text-white bg-blue-500'; // 互角
+    if (score >= -30) return 'text-white bg-orange-500'; // やや不利
+    return 'text-white bg-red-500'; // 不利
   };
 
   return (
@@ -93,7 +95,6 @@ function GameBoard({
                           score
                         )} shadow-sm border border-gray-300`}
                       >
-                        {score > 0 ? '+' : ''}
                         {score}
                       </div>
                     );

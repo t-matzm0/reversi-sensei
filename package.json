@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0",
+    "dev": "node scripts/dev.js",
     "dev:local": "next dev",
-    "dev:wsl": "HOSTNAME=0.0.0.0 next dev -p 3000",
+    "dev:wsl": "next dev -H 0.0.0.0 -p 3000",
     "dev:docker": "docker-compose up",
     "build": "next build",
     "start": "next start",

@@ -1,13 +1,13 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Board, Player, Position } from '@/types/game';
 import { evaluateMove } from '@/lib/ai';
 
 interface MoveEvaluation {
   position: Position;
   score: number;
-  normalizedScore: number; // -100 to 100
+  normalizedScore: number; // -100 to 100 (absolute evaluation)
 }
 
 export function useMoveEvaluation(
@@ -16,11 +16,14 @@ export function useMoveEvaluation(
   possibleMoves: Position[],
   difficulty: 'easy' | 'medium' | 'hard' = 'medium'
 ): Map<string, MoveEvaluation> {
-  return useMemo(() => {
-    const evaluations = new Map<string, MoveEvaluation>();
+  const [evaluations, setEvaluations] = useState<Map<string, MoveEvaluation>>(() => new Map());
+
+  useEffect(() => {
+    const newEvaluations = new Map<string, MoveEvaluation>();
 
     if (!player || possibleMoves.length === 0) {
-      return evaluations;
+      setEvaluations(newEvaluations);
+      return;
     }
 
     // Calculate scores for all possible moves
@@ -29,35 +32,47 @@ export function useMoveEvaluation(
       score: evaluateMove(board, move, player, difficulty),
     }));
 
-    // Find min and max scores for normalization
-    const minScore = Math.min(...scores.map((s) => s.score));
+    // 最大値と最小値を取得（相対的な差を計算するため）
     const maxScore = Math.max(...scores.map((s) => s.score));
+    const minScore = Math.min(...scores.map((s) => s.score));
     const scoreRange = maxScore - minScore;
 
-    // Normalize scores to -100 to 100 range
+    // 評価値の差が小さい場合は全体的に0に近づける
+    // 差が大きい場合は差を表示する
+    // これにより、序盤（差が小さい）は0に近く、角が取れる場面（差が大きい）は明確に表示される
+    const scalingFactor = Math.min(1, scoreRange / 100); // scoreRangeが100以上で完全表示
+
     scores.forEach(({ position, score }) => {
       let normalizedScore: number;
 
-      if (scoreRange === 0) {
-        // All scores are the same, show them as neutral (0)
+      // 勝敗確定
+      if (Math.abs(score) >= 10000) {
+        normalizedScore = score > 0 ? 100 : -100;
+      } else if (scoreRange === 0) {
+        // 全ての手が同じ評価
         normalizedScore = 0;
-      } else if (scoreRange < 10) {
-        // Small range: show relative differences but keep them closer to 0
-        const relativeScore = ((score - minScore) / scoreRange) * 50 - 25; // -25 to +25 range
-        normalizedScore = Math.round(relativeScore);
       } else {
-        // Normal range: use full -100 to +100 scale
-        normalizedScore = Math.round(((score - minScore) / scoreRange) * 200 - 100);
+        // 相対評価: 平均からの差分
+        const avgScore = (maxScore + minScore) / 2;
+        const diffFromAvg = score - avgScore;
+
+        // 差分を-100〜100にスケーリング
+        // scoreRangeが小さいほど、scalingFactorが小さくなり、0に近づく
+        normalizedScore = Math.round(
+          Math.max(-100, Math.min(100, (diffFromAvg / (scoreRange / 2)) * 100 * scalingFactor))
+        );
       }
 
       const key = `${position.row}-${position.col}`;
-      evaluations.set(key, {
+      newEvaluations.set(key, {
         position,
         score,
         normalizedScore,
       });
     });
 
-    return evaluations;
+    setEvaluations(newEvaluations);
   }, [board, player, possibleMoves, difficulty]);
+
+  return evaluations;
 }
