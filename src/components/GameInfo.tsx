@@ -12,12 +12,18 @@ interface GameInfoProps {
   winner: Player;
   onNewGame: () => void;
   onToggleHints: () => void;
+  onToggleEvaluations: () => void;
   showHints: boolean;
+  showEvaluations: boolean;
   isVsComputer: boolean;
   difficulty: 'easy' | 'medium' | 'hard';
   onToggleGameMode: () => void;
   onDifficultyChange: (difficulty: 'easy' | 'medium' | 'hard') => void;
   isThinking: boolean;
+  allowUndo: boolean;
+  onToggleAllowUndo: () => void;
+  onUndo: () => void;
+  canUndo: boolean;
 }
 
 function GameInfo({
@@ -28,15 +34,21 @@ function GameInfo({
   winner,
   onNewGame,
   onToggleHints,
+  onToggleEvaluations,
   showHints,
+  showEvaluations,
   isVsComputer,
   difficulty,
   onToggleGameMode,
   onDifficultyChange,
   isThinking,
+  allowUndo,
+  onToggleAllowUndo,
+  onUndo,
+  canUndo,
 }: GameInfoProps) {
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xs">
+    <div className="bg-white text-gray-800 rounded-lg shadow-lg p-6 w-full max-w-xs">
       <h2 className="text-2xl font-bold mb-4 text-center">ゲーム情報</h2>
 
       <div className="mb-6">
@@ -117,6 +129,42 @@ function GameInfo({
         >
           ヒント: {showHints ? 'ON' : 'OFF'}
         </button>
+
+        <button
+          onClick={onToggleEvaluations}
+          className={`w-full py-2 px-4 rounded-lg transition-colors font-semibold ${
+            showEvaluations
+              ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+              : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+          }`}
+        >
+          評価値: {showEvaluations ? 'ON' : 'OFF'}
+        </button>
+
+        <button
+          onClick={onToggleAllowUndo}
+          className={`w-full py-2 px-4 rounded-lg transition-colors font-semibold ${
+            allowUndo
+              ? 'bg-orange-600 text-white hover:bg-orange-700'
+              : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+          }`}
+        >
+          待った: {allowUndo ? 'ON' : 'OFF'}
+        </button>
+
+        {allowUndo && (
+          <button
+            onClick={onUndo}
+            disabled={!canUndo || gameOver}
+            className={`w-full py-2 px-4 rounded-lg transition-colors font-semibold ${
+              canUndo && !gameOver
+                ? 'bg-red-600 text-white hover:bg-red-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            待った
+          </button>
+        )}
 
         <div className="border-t pt-3">
           <button

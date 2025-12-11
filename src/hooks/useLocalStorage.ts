@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export function useLocalStorage<T>(
   key: string,
@@ -11,19 +11,24 @@ export function useLocalStorage<T>(
   const serialize = options?.serialize || JSON.stringify;
   const deserialize = options?.deserialize || JSON.parse;
 
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === 'undefined') {
-      return initialValue;
-    }
+  // 常に初期値から開始（ハイドレーション対策）
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
+  const isInitialized = useRef(false);
+
+  // クライアント側でのみlocalStorageから読み込む
+  useEffect(() => {
+    if (isInitialized.current) return;
+    isInitialized.current = true;
 
     try {
       const item = window.localStorage.getItem(key);
-      return item ? deserialize(item) : initialValue;
+      if (item) {
+        setStoredValue(deserialize(item));
+      }
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
-      return initialValue;
     }
-  });
+  }, [key, deserialize]);
 
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
@@ -32,7 +37,11 @@ export function useLocalStorage<T>(
         setStoredValue(valueToStore);
 
         if (typeof window !== 'undefined') {
-          window.localStorage.setItem(key, serialize(valueToStore));
+          if (valueToStore === undefined) {
+            window.localStorage.removeItem(key);
+          } else {
+            window.localStorage.setItem(key, serialize(valueToStore));
+          }
         }
       } catch (error) {
         console.error(`Error setting localStorage key "${key}":`, error);
