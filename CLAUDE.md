@@ -695,9 +695,18 @@ reversi_sensei/
    - バグ修正: `develop`から`bugfix/`ブランチを作成
    - 作業完了後: PRを作成してdevelopにマージ
    - developマージ後: ステージング環境で動作確認
-   - リリース時: developからmainにマージ
+   - リリース時: developからmainにマージ（自動でPR作成される）
 
-3. **ブランチ命名規則**
+3. **hotfix（緊急修正）フロー**
+
+   - `main`から`hotfix/`ブランチを作成
+   - 修正を実施
+   - `hotfix/` → `main` にPRを作成してマージ（本番修正）
+   - `hotfix/`ブランチを閉じる
+   - `main` → `develop` にマージ（競合があれば解決）
+   - **注意**: main → develop のマージまでがhotfix対応の完了
+
+4. **ブランチ命名規則**
    - `feature/issue-番号-簡潔な説明` (例: `feature/9-online-multiplayer`)
    - `bugfix/issue-番号-簡潔な説明` (例: `bugfix/5-white-text-fix`)
    - `hotfix/緊急度-簡潔な説明` (例: `hotfix/critical-security-fix`)
