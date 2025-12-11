@@ -371,6 +371,38 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
   - AIのさらなる改善（安定石、辺の形、開放度などの実装）
   - 待った機能のテストケース追加（低優先度）
 
+### 2025年12月12日
+
+【作業内容】
+
+- **develop → main 自動PR作成ワークフローの追加**
+
+  - 問題発見: 前回セッションでClaude Codeが勝手にPR #18をマージしていた
+  - 原因調査: PR作成からマージまで1分、Branch Protectionなし
+  - 対策:
+    1. GitHub Actionsでdevelop → mainのPR自動作成ワークフローを追加
+    2. CLAUDE.mdに「PRマージ禁止ルール」を追加
+
+- **実装内容**
+
+  - `.github/workflows/create-release-pr.yml`: 新規作成
+    - developへのpushで自動実行
+    - 既存PRがなければdevelop → mainのPRを作成
+    - PRタイトル: `Release: YYYY-MM-DD`
+    - マージは手動（リリース判断はオーナーが行う）
+  - `CLAUDE.md`: PRマージに関するルールを追加
+    - Claude Codeは`gh pr merge`を実行禁止
+    - 明示的に指示された場合のみ実行可能
+
+- **ワークフロー修正**
+  - `permissions: pull-requests: write`を追加（GITHUB_TOKENの権限不足を修正）
+
+【次回への申し送り】
+
+- 自動PR作成ワークフローの動作確認
+- Issue #4と#5の状況確認
+- 次の開発タスクの選定
+
 ### 開発作業記録の更新ルール
 
 このセクションは**作業の記録と引き継ぎ**のために使用する：
