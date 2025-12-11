@@ -1,0 +1,70 @@
+name: Create Release PR
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  create-release-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for existing PR
+        id: check-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING_PR=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number')
+          if [ -n "$EXISTING_PR" ]; then
+            echo "existing_pr=$EXISTING_PR" >> $GITHUB_OUTPUT
+            echo "PR #$EXISTING_PR already exists"
+          else
+            echo "existing_pr=" >> $GITHUB_OUTPUT
+            echo "No existing PR found"
+          fi
+
+      - name: Get commit messages since last release
+        id: commits
+        if: steps.check-pr.outputs.existing_pr == ''
+        run: |
+          # Get commits that are in develop but not in main
+          COMMITS=$(git log origin/main..origin/develop --pretty=format:"- %s" --reverse | head -20)
+          if [ -z "$COMMITS" ]; then
+            echo "No new commits"
+            echo "has_commits=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_commits=true" >> $GITHUB_OUTPUT
+            # Save commits to file to handle multiline
+            echo "$COMMITS" > /tmp/commits.txt
+          fi
+
+      - name: Create Release PR
+        if: steps.check-pr.outputs.existing_pr == '' && steps.commits.outputs.has_commits == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          COMMITS=$(cat /tmp/commits.txt)
+          DATE=$(date +%Y-%m-%d)
+
+          gh pr create \
+            --base main \
+            --head develop \
+            --title "Release: $DATE" \
+            --body "## Summary
+
+          This PR contains changes from develop branch ready for production release.
+
+          ## Changes
+          $COMMITS
+
+          ## Checklist
+          - [ ] ステージング環境で動作確認済み
+          - [ ] 本番リリースの準備完了
+
+          ---
+          🤖 This PR was automatically created by GitHub Actions"
