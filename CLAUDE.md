@@ -795,10 +795,16 @@ reversi_sensei/
    - マージ完了: PRマージ時に自動的にIssueクローズ（`Fixes #番号`使用）
 
 3. **GitHub Projects連携**
+
    - 可能な場合はGitHub Projectsでカンバン管理
    - To Do → In Progress → In Review → Doneの流れ
-   - **注意**: 現在のリポジトリには `in progress` や `in review` ラベルが存在しない
-   - ラベルがない場合は、コメントで状態を明示（例：「作業開始しました」「PR #XX を作成しました。レビューをお願いします」）
+   - ラベル: `in review`（PR作成済み、レビュー待ち）
+
+4. **Claude Codeの実装完了時の責務**
+   - 実装完了後、PRを作成する
+   - PR作成後、対象Issueに`in review`ラベルを追加する
+   - Issueにコメントで実装内容とPR番号を記載する
+   - ここまでがClaude Codeの責務（マージはオーナーが判断）
 
 ### PRマージに関するルール
 
