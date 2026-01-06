@@ -796,13 +796,14 @@ reversi_sensei/
 
 3. **GitHub Projects連携**
 
-   - 可能な場合はGitHub Projectsでカンバン管理
-   - To Do → In Progress → In Review → Doneの流れ
-   - ラベル: `in review`（PR作成済み、レビュー待ち）
+   - GitHub Projectsでカンバン管理
+   - ステータス: Todo → In Progress → In Review → Done
+   - GraphQL APIを使用（REST APIでは不可）
+   - Classic token（`project`スコープ付き）が必要
 
 4. **Claude Codeの実装完了時の責務**
    - 実装完了後、PRを作成する
-   - PR作成後、対象Issueに`in review`ラベルを追加する
+   - PR作成後、GitHub ProjectsでIssueのステータスを「In Review」に変更する
    - Issueにコメントで実装内容とPR番号を記載する
    - ここまでがClaude Codeの責務（マージはオーナーが判断）
 
