@@ -433,9 +433,15 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
   - 相手に角を与える: 「この手を打つと、相手が角を取れるようになります」
 
 - **動作確認**
+
   - Lint: ✅ エラー/警告なし
   - Test: ✅ 全41テスト合格
   - TypeScript: ✅ 型エラーなし
+
+- **PRプレビュー環境の追加**
+  - `.github/workflows/preview-pr.yml`: PRごとにFirebase Preview Channelにデプロイ
+  - PRにプレビューURLが自動コメントされる
+  - 7日間で自動削除
 
 【次回への申し送り】
 
