@@ -37,12 +37,27 @@ jobs:
           NEXT_PUBLIC_ENV: staging
           NEXT_PUBLIC_STAGING_PASSWORD: ${{ secrets.STAGING_PASSWORD }}
 
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
       - name: Deploy to Firebase Preview Channel
-        uses: FirebaseExtended/action-hosting-deploy@v0
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}
+        run: |
+          echo "$FIREBASE_SERVICE_ACCOUNT" > $HOME/gcloud-service-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json
+          firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} --expires 7d --target staging --json | tee deploy-output.json
+          PREVIEW_URL=$(cat deploy-output.json | jq -r '.result["reversi-sensei-dev"].url // empty')
+          echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
+
+      - name: Comment on PR
+        if: env.PREVIEW_URL != ''
+        uses: actions/github-script@v7
         with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}
-          projectId: reversi-sensei
-          channelId: pr-${{ github.event.pull_request.number }}
-          expires: 7d
-          target: staging
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 Preview deployment ready!\n\n**Preview URL:** ${process.env.PREVIEW_URL}\n\nThis preview will expire in 7 days.`
+            })
