@@ -472,6 +472,7 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
     - `-E`フラグでgrepの移植性を改善
     - `--target`を`--only`に変更（Firebase CLIの正しいオプション）
     - FIREBASE_TOKENを追加（deploy-staging.ymlと同じ認証方式）
+    - `--only`フラグを削除（hosting:channel:deployでは不要）
 
 【次回への申し送り】
 
