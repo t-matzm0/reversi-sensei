@@ -44,11 +44,12 @@ jobs:
         id: deploy
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: |
           set +e  # Don't fail on individual command errors
           echo "$FIREBASE_SERVICE_ACCOUNT" > $HOME/gcloud-service-key.json
           export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json
-          firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} --expires 7d --only reversi-sensei-dev --json 2>&1 | tee deploy-output.json
+          firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} --expires 7d --only reversi-sensei-dev --token "$FIREBASE_TOKEN" --json 2>&1 | tee deploy-output.json
           DEPLOY_EXIT_CODE=$?
           echo "=== Deploy Exit Code: $DEPLOY_EXIT_CODE ==="
           echo "=== Raw Deploy Output ==="

@@ -471,6 +471,7 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
     - `set +e`で個別コマンドエラーでスクリプト全体が失敗しないように修正
     - `-E`フラグでgrepの移植性を改善
     - `--target`を`--only`に変更（Firebase CLIの正しいオプション）
+    - FIREBASE_TOKENを追加（deploy-staging.ymlと同じ認証方式）
 
 【次回への申し送り】
 
