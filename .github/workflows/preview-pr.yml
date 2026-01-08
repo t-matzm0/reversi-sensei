@@ -41,18 +41,33 @@ jobs:
         run: npm install -g firebase-tools
 
       - name: Deploy to Firebase Preview Channel
+        id: deploy
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}
         run: |
           echo "$FIREBASE_SERVICE_ACCOUNT" > $HOME/gcloud-service-key.json
           export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json
-          firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} --expires 7d --target staging --json | tee deploy-output.json
-          echo "=== Deploy Output ==="
+          firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} --expires 7d --target staging --json 2>&1 | tee deploy-output.json
+          echo "=== Raw Deploy Output ==="
           cat deploy-output.json
-          echo "=== Extracting URL ==="
-          PREVIEW_URL=$(cat deploy-output.json | jq -r '.result | to_entries[0].value.url // empty')
+          echo ""
+          echo "=== Attempting URL extraction ==="
+          # Try multiple extraction methods
+          PREVIEW_URL=$(cat deploy-output.json | jq -r '.result["reversi-sensei-dev"].url // empty' 2>/dev/null)
+          if [ -z "$PREVIEW_URL" ]; then
+            PREVIEW_URL=$(cat deploy-output.json | jq -r '.result | to_entries[0].value.url // empty' 2>/dev/null)
+          fi
+          if [ -z "$PREVIEW_URL" ]; then
+            # Try to extract URL with grep as fallback
+            PREVIEW_URL=$(grep -oP 'https://[^"]+\.web\.app' deploy-output.json | head -1)
+          fi
           echo "PREVIEW_URL=$PREVIEW_URL"
           echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
+          # Save raw output for debugging in PR comment
+          echo "DEPLOY_OUTPUT<<EOF" >> $GITHUB_ENV
+          head -c 500 deploy-output.json >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Comment on PR
         if: always()
@@ -60,9 +75,13 @@ jobs:
         with:
           script: |
             const url = process.env.PREVIEW_URL;
-            const body = url
-              ? `🚀 Preview deployment ready!\n\n**Preview URL:** ${url}\n\nThis preview will expire in 7 days.`
-              : `⚠️ Preview deployment completed but URL extraction failed. Check the workflow logs.`;
+            const rawOutput = process.env.DEPLOY_OUTPUT || 'No output captured';
+            let body;
+            if (url) {
+              body = `🚀 Preview deployment ready!\n\n**Preview URL:** ${url}\n\nThis preview will expire in 7 days.`;
+            } else {
+              body = `⚠️ Preview deployment completed but URL extraction failed.\n\n<details>\n<summary>Debug: Raw deploy output (first 500 chars)</summary>\n\n\`\`\`\n${rawOutput}\n\`\`\`\n</details>`;
+            }
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

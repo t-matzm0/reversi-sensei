@@ -465,6 +465,8 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
 
 - **実装内容**
   - `.github/workflows/preview-pr.yml`: デバッグ出力とエラーハンドリングを追加
+    - 複数のURL抽出方法を試行（jq + grep fallback）
+    - 失敗時はPRコメントに生の出力を含めてデバッグ可能に
 
 【次回への申し送り】
 
