@@ -47,17 +47,25 @@ jobs:
           echo "$FIREBASE_SERVICE_ACCOUNT" > $HOME/gcloud-service-key.json
           export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json
           firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} --expires 7d --target staging --json | tee deploy-output.json
-          PREVIEW_URL=$(cat deploy-output.json | jq -r '.result["reversi-sensei-dev"].url // empty')
+          echo "=== Deploy Output ==="
+          cat deploy-output.json
+          echo "=== Extracting URL ==="
+          PREVIEW_URL=$(cat deploy-output.json | jq -r '.result | to_entries[0].value.url // empty')
+          echo "PREVIEW_URL=$PREVIEW_URL"
           echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
 
       - name: Comment on PR
-        if: env.PREVIEW_URL != ''
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
+            const url = process.env.PREVIEW_URL;
+            const body = url
+              ? `🚀 Preview deployment ready!\n\n**Preview URL:** ${url}\n\nThis preview will expire in 7 days.`
+              : `⚠️ Preview deployment completed but URL extraction failed. Check the workflow logs.`;
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `🚀 Preview deployment ready!\n\n**Preview URL:** ${process.env.PREVIEW_URL}\n\nThis preview will expire in 7 days.`
+              body: body
             })
