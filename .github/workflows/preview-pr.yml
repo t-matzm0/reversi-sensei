@@ -63,11 +63,8 @@ jobs:
           fi
           echo "PREVIEW_URL=$PREVIEW_URL"
           echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
-          # Save raw output for debugging in PR comment
-          echo "DEPLOY_OUTPUT<<EOF" >> $GITHUB_ENV
-          head -c 500 deploy-output.json >> $GITHUB_ENV
-          echo "" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          # Save raw output for debugging (base64 encode to handle special chars)
+          echo "DEPLOY_OUTPUT_B64=$(head -c 1000 deploy-output.json | base64 -w0)" >> $GITHUB_ENV
 
       - name: Comment on PR
         if: always()
@@ -75,12 +72,20 @@ jobs:
         with:
           script: |
             const url = process.env.PREVIEW_URL;
-            const rawOutput = process.env.DEPLOY_OUTPUT || 'No output captured';
+            const rawOutputB64 = process.env.DEPLOY_OUTPUT_B64 || '';
+            let rawOutput = 'No output captured';
+            if (rawOutputB64) {
+              try {
+                rawOutput = Buffer.from(rawOutputB64, 'base64').toString('utf8');
+              } catch (e) {
+                rawOutput = 'Failed to decode output';
+              }
+            }
             let body;
             if (url) {
               body = `🚀 Preview deployment ready!\n\n**Preview URL:** ${url}\n\nThis preview will expire in 7 days.`;
             } else {
-              body = `⚠️ Preview deployment completed but URL extraction failed.\n\n<details>\n<summary>Debug: Raw deploy output (first 500 chars)</summary>\n\n\`\`\`\n${rawOutput}\n\`\`\`\n</details>`;
+              body = `⚠️ Preview deployment completed but URL extraction failed.\n\n<details>\n<summary>Debug: Raw deploy output</summary>\n\n\`\`\`\n${rawOutput}\n\`\`\`\n</details>`;
             }
             github.rest.issues.createComment({
               issue_number: context.issue.number,
