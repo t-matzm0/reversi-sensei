@@ -454,29 +454,26 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
 
 【作業内容】
 
-- **PRプレビュー環境のデバッグと修正**
+- **PRプレビュー環境のデバッグと修正** ✅ 完了
 
-  - 問題: Firebase Preview Channelへのデプロイは成功するが、URLの抽出に失敗
-  - 原因: Firebase CLIの出力形式が想定と異なっていた
-  - 修正内容:
-    - デバッグ出力を追加してFirebaseの実際の出力を確認
-    - jqのパスを汎用的なものに変更（`.result | to_entries[0].value.url`）
-    - URL抽出失敗時もPRにコメントするように変更（`if: always()`）
+  - 問題: Firebase Preview Channelへのデプロイが様々なエラーで失敗
+  - 原因と修正:
+    1. `--target`オプションはhosting:channel:deployでは無効 → 削除
+    2. `--only`オプションも不要 → 削除
+    3. FIREBASE_TOKENが必要 → 追加
+    4. URL抽出のjqパスが間違っていた → 汎用的なパスに修正
+  - 最終動作: PR #21のプレビューURLが正常に生成・コメントされることを確認
 
 - **実装内容**
-  - `.github/workflows/preview-pr.yml`: デバッグ出力とエラーハンドリングを追加
+  - `.github/workflows/preview-pr.yml`: PRプレビュー環境を正常に動作するよう修正
     - 複数のURL抽出方法を試行（jq + grep fallback）
-    - 失敗時はPRコメントに生の出力を含めてデバッグ可能に
-    - base64エンコーディングで特殊文字を安全に渡す
-    - `set +e`で個別コマンドエラーでスクリプト全体が失敗しないように修正
-    - `-E`フラグでgrepの移植性を改善
-    - `--target`を`--only`に変更（Firebase CLIの正しいオプション）
-    - FIREBASE_TOKENを追加（deploy-staging.ymlと同じ認証方式）
-    - `--only`フラグを削除（hosting:channel:deployでは不要）
+    - 失敗時はPRコメントにデバッグ情報を表示
+    - FIREBASE_TOKENで認証
+    - hosting:channel:deployの正しいオプション使用
 
 【次回への申し送り】
 
-- PRプレビューワークフローの動作確認
+- PR #21のレビュー（プレビュー環境で確認可能: https://reversi-sensei-dev--pr-21-zzarxg06.web.app）
 - Issue #3のPRレビュー完了待ち
 - Issue #20（リバーシ戦略概念の説明機能）の検討
 
