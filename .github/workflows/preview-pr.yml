@@ -45,26 +45,32 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRODUCTION }}
         run: |
+          set +e  # Don't fail on individual command errors
           echo "$FIREBASE_SERVICE_ACCOUNT" > $HOME/gcloud-service-key.json
           export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcloud-service-key.json
           firebase hosting:channel:deploy pr-${{ github.event.pull_request.number }} --expires 7d --target staging --json 2>&1 | tee deploy-output.json
+          DEPLOY_EXIT_CODE=$?
+          echo "=== Deploy Exit Code: $DEPLOY_EXIT_CODE ==="
           echo "=== Raw Deploy Output ==="
-          cat deploy-output.json
+          cat deploy-output.json || echo "(empty file)"
           echo ""
           echo "=== Attempting URL extraction ==="
           # Try multiple extraction methods
-          PREVIEW_URL=$(cat deploy-output.json | jq -r '.result["reversi-sensei-dev"].url // empty' 2>/dev/null)
+          PREVIEW_URL=$(cat deploy-output.json | jq -r '.result["reversi-sensei-dev"].url // empty' 2>/dev/null || true)
           if [ -z "$PREVIEW_URL" ]; then
-            PREVIEW_URL=$(cat deploy-output.json | jq -r '.result | to_entries[0].value.url // empty' 2>/dev/null)
+            PREVIEW_URL=$(cat deploy-output.json | jq -r '.result | to_entries[0].value.url // empty' 2>/dev/null || true)
           fi
           if [ -z "$PREVIEW_URL" ]; then
-            # Try to extract URL with grep as fallback
-            PREVIEW_URL=$(grep -oP 'https://[^"]+\.web\.app' deploy-output.json | head -1)
+            # Try to extract URL with grep as fallback (use -E instead of -P for portability)
+            PREVIEW_URL=$(grep -oE 'https://[^"]+\.web\.app' deploy-output.json 2>/dev/null | head -1 || true)
           fi
           echo "PREVIEW_URL=$PREVIEW_URL"
           echo "PREVIEW_URL=$PREVIEW_URL" >> $GITHUB_ENV
           # Save raw output for debugging (base64 encode to handle special chars)
-          echo "DEPLOY_OUTPUT_B64=$(head -c 1000 deploy-output.json | base64 -w0)" >> $GITHUB_ENV
+          DEPLOY_OUTPUT_B64=$(head -c 1000 deploy-output.json 2>/dev/null | base64 -w0 || echo "")
+          echo "DEPLOY_OUTPUT_B64=$DEPLOY_OUTPUT_B64" >> $GITHUB_ENV
+          # Exit with deploy exit code to signal if deploy failed
+          exit $DEPLOY_EXIT_CODE
 
       - name: Comment on PR
         if: always()
