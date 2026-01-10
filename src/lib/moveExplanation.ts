@@ -180,8 +180,8 @@ export function generateExplanation(
   breakdown: EvaluationBreakdown,
   normalizedScore: number
 ): MoveExplanation {
-  const reasons: string[] = [];
-  const risks: string[] = [];
+  const goodPoints: string[] = [];
+  const badPoints: string[] = [];
 
   // 評価に基づくレーティング
   let rating: MoveExplanation['rating'];
@@ -191,61 +191,92 @@ export function generateExplanation(
   else if (normalizedScore >= -50) rating = 'bad';
   else rating = 'terrible';
 
-  // 即時的な理由（良い点）
+  // 良い点を収集
   if (breakdown.isCorner) {
-    reasons.push('角を取れます！角は絶対に取られない確定石になります');
+    goodPoints.push('角を取れます！確定石になります');
   }
 
   if (breakdown.opponentMobilityChange < -2) {
-    reasons.push('相手の打てる場所を大きく減らせます');
+    goodPoints.push('相手の打てる場所を大きく減らせます');
   } else if (breakdown.opponentMobilityChange < 0) {
-    reasons.push('相手の選択肢を減らせます');
+    goodPoints.push('相手の選択肢を減らせます');
   }
 
-  if (breakdown.positionValue >= 10) {
-    reasons.push('盤面の良い位置です');
+  if (breakdown.positionValue >= 10 && !breakdown.isCorner) {
+    goodPoints.push('盤面の良い位置です');
   }
 
-  if (breakdown.frontierDiscsChange < 0) {
-    reasons.push('石が安定した位置に収まります');
+  if (breakdown.frontierDiscsChange < -1) {
+    goodPoints.push('石が安定します');
   }
 
-  // リスク（悪い点）
+  // 悪い点を収集
   if (breakdown.isXSquare && breakdown.cornerEmpty) {
-    risks.push('X打ち（角の斜め隣）です。相手に角を取られる危険があります');
+    badPoints.push('X打ちで角を取られる危険があります');
   }
 
   if (breakdown.isCSquare && breakdown.cornerEmpty) {
-    risks.push('C打ち（角の隣）です。角を取られやすくなります');
+    badPoints.push('C打ちで角を取られやすくなります');
   }
 
   if (breakdown.givesCornerToOpponent) {
-    risks.push('この手を打つと、相手が角を取れるようになります');
+    badPoints.push('相手が角を取れるようになります');
   }
 
   if (breakdown.mobilityChange < -2) {
-    risks.push('自分の打てる場所が大きく減ります');
+    badPoints.push('自分の選択肢が減ります');
   }
 
   if (breakdown.frontierDiscsChange > 2) {
-    risks.push('取られやすい石（境界石）が増えます');
+    badPoints.push('取られやすい石が増えます');
   }
 
-  if (breakdown.positionValue < -5) {
-    risks.push('あまり良くない位置です');
+  if (breakdown.positionValue < -5 && !breakdown.isXSquare && !breakdown.isCSquare) {
+    badPoints.push('位置が良くありません');
   }
 
-  // 説明文の生成
+  // 評価値に応じて説明を選択（矛盾を避ける）
   let immediate: string;
-  if (reasons.length > 0) {
-    immediate = reasons[0];
-  } else if (risks.length > 0) {
-    immediate = risks[0];
-  } else {
-    immediate = '普通の手です';
-  }
+  let risk: string | undefined;
 
-  const risk = risks.length > 0 ? risks.join('。') : undefined;
+  if (rating === 'excellent' || rating === 'good') {
+    // 良い評価の場合は良い点を優先
+    if (goodPoints.length > 0) {
+      immediate = goodPoints[0];
+    } else {
+      // 良い評価だが具体的な理由がない場合
+      immediate = '有利な手です';
+    }
+    // 良い手でもリスクがある場合は補足として表示（ただし主説明と被らない）
+    if (badPoints.length > 0) {
+      risk = badPoints.join('。');
+    }
+  } else if (rating === 'bad' || rating === 'terrible') {
+    // 悪い評価の場合は悪い点を優先
+    if (badPoints.length > 0) {
+      immediate = badPoints[0];
+      // 残りの悪い点を補足に（重複を避ける）
+      const remainingBad = badPoints.slice(1);
+      if (remainingBad.length > 0) {
+        risk = remainingBad.join('。');
+      }
+    } else {
+      // 悪い評価だが具体的な理由がない場合
+      immediate = '不利になりやすい手です';
+    }
+  } else {
+    // 中立の場合
+    if (goodPoints.length > 0 && badPoints.length > 0) {
+      immediate = goodPoints[0];
+      risk = badPoints[0];
+    } else if (goodPoints.length > 0) {
+      immediate = goodPoints[0];
+    } else if (badPoints.length > 0) {
+      immediate = badPoints[0];
+    } else {
+      immediate = '普通の手です';
+    }
+  }
 
   return { immediate, risk, rating };
 }
