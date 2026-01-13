@@ -89,41 +89,40 @@ export function useGameState() {
         return prev;
       }
 
-      // 人間の手のみを取り消し対象とする
       const newHistory = [...prev.history];
-      let lastMove = newHistory.pop()!;
+      const movesToUndo: Move[] = [];
 
-      // 最後の手がAIの手なら、その前の人間の手を探す
-      if (lastMove.isAI) {
-        // AIの手は取り消さず、履歴に戻す
-        newHistory.push(lastMove);
+      // 最後の手を取得
+      const lastMove = newHistory.pop()!;
+      movesToUndo.push(lastMove);
 
-        // 人間の手を探す
-        for (let i = newHistory.length - 1; i >= 0; i--) {
-          if (!newHistory[i].isAI) {
-            lastMove = newHistory[i];
-            newHistory.splice(i, 1);
-            break;
-          }
-        }
-
-        // 人間の手が見つからない場合は何もしない
-        if (lastMove.isAI) {
-          return prev;
-        }
+      // AI対戦時：AIの手の後なら、その前の人間の手も取り消す
+      if (lastMove.isAI && newHistory.length > 0) {
+        const humanMove = newHistory.pop()!;
+        movesToUndo.push(humanMove);
+      }
+      // 人間の手の後にAIが打っていた場合も考慮
+      // （人間→AI→人間の流れで、最後の人間の手を取り消す場合）
+      else if (!lastMove.isAI && newHistory.length > 0 && newHistory[newHistory.length - 1].isAI) {
+        // この場合は人間の手だけを取り消す（AIの手は残す）
+        // ただし、AIの手の前の状態に戻したい場合は、AIの手も取り消す必要がある
+        // ここでは「直前の自分の手を取り消す」という動作にする
       }
 
-      // ボードを復元
+      // ボードを復元（取り消す手を逆順に適用）
       const newBoard = prev.board.map((row) => [...row]);
-      newBoard[lastMove.row][lastMove.col] = null;
+      for (const move of movesToUndo) {
+        newBoard[move.row][move.col] = null;
+        move.flippedPieces.forEach(({ row, col }) => {
+          newBoard[row][col] = getOpponent(move.player);
+        });
+      }
 
-      // 反転された石を元に戻す
-      lastMove.flippedPieces.forEach(({ row, col }) => {
-        newBoard[row][col] = getOpponent(lastMove.player);
-      });
+      // 復元後の手番を決定（最初に取り消した手のプレイヤー）
+      const playerToMove = movesToUndo[movesToUndo.length - 1].player;
 
       const scores = countPieces(newBoard);
-      const possibleMoves = getAllValidMoves(newBoard, lastMove.player);
+      const possibleMoves = getAllValidMoves(newBoard, playerToMove);
 
       // 前の手があれば、それをlastMoveとして設定
       const previousMove = newHistory.length > 0 ? newHistory[newHistory.length - 1] : undefined;
@@ -132,7 +131,7 @@ export function useGameState() {
       return {
         ...prev,
         board: newBoard,
-        currentPlayer: lastMove.player,
+        currentPlayer: playerToMove,
         history: newHistory,
         blackScore: scores.black,
         whiteScore: scores.white,
