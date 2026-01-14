@@ -8,6 +8,7 @@ import {
   getWinner,
   getOpponent,
   getFlippedPieces,
+  makeMove,
 } from '@/lib/gameLogic';
 import { INITIAL_SCORES } from '@/constants';
 
@@ -65,8 +66,11 @@ export function useGameState() {
   }, []);
 
   const makeGameMove = useCallback(
-    (board: Board, row: number, col: number, player: Player, isAI = false) => {
-      const flippedPieces = getFlippedPieces(board, row, col, player);
+    (oldBoard: Board, row: number, col: number, player: Player, isAI = false) => {
+      // 古いボードからflippedPiecesを計算
+      const flippedPieces = getFlippedPieces(oldBoard, row, col, player);
+      // 新しいボードを作成
+      const newBoard = makeMove(oldBoard, row, col, player);
       const move: Move = {
         row,
         col,
@@ -78,7 +82,7 @@ export function useGameState() {
       setLastMove({ row, col });
 
       const nextPlayer = getOpponent(player);
-      updateGameState(board, nextPlayer);
+      updateGameState(newBoard, nextPlayer);
     },
     [addMoveToHistory, setLastMove, updateGameState]
   );

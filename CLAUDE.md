@@ -499,12 +499,15 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
   - Issue #3をクローズ
 
 - **Issue #22: 「待った」が相手を強制パスさせるチートになっているバグの修正**
-  - 原因: AI対戦時、`undoLastMove`がAIの手をボードに残したまま人間の手だけを取り消していた
-  - 修正: AIの手の後に待ったを使った場合、AIの手と人間の手の両方を取り消すように変更
-  - 追加修正: ロジックを簡潔化
-    - 最後の手がAIの場合: AIと人間の両方を取り消す
-    - 最後の手が人間の場合: 人間の手だけを取り消す（AIの応答後に別の手を試せる）
-  - `src/hooks/useGameState.ts`の`undoLastMove`関数を修正
+  - **根本原因発見**: `makeGameMove`に移動後のボードを渡していたため、`getFlippedPieces`が正しく計算されず、履歴の`flippedPieces`が空だった
+  - 修正:
+    1. `makeGameMove`を修正：古いボードを受け取り、内部で`makeMove`を呼ぶように変更
+    2. `Game.tsx`と`useAIPlayer.ts`を修正：古いボードを渡すように変更
+    3. `undoLastMove`ロジックを簡潔化
+  - 変更ファイル:
+    - `src/hooks/useGameState.ts`
+    - `src/components/Game.tsx`
+    - `src/hooks/useAIPlayer.ts`
 
 【次回への申し送り】
 
