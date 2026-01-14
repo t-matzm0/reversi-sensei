@@ -514,6 +514,27 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
 - Issue #22のPRレビュー待ち（PR #24）
 - Issue #20（リバーシ戦略概念の説明機能）の検討
 
+### 2026年1月14日
+
+【作業内容】
+
+- **Issue #22: 「待った」バグの追加修正**
+  - 前回の修正後もまだ正しく動作しない問題を調査
+  - **追加の問題発見**:
+    1. `undoLastMove`内で`setLastMove`を`setGameState`のコールバック内で呼んでいた（副作用）
+    2. `makeGameMove`の状態更新がアトミックでなかった（複数のsetState呼び出し）
+  - 修正内容:
+    1. `makeGameMove`を単一の`setGameState`呼び出しでアトミックに更新するよう変更
+    2. `undoLastMove`から副作用を除去（`setLastMove`をコールバック外に移動）
+    3. 未使用の`addMoveToHistory`と`updateGameState`関数を削除
+  - 変更ファイル:
+    - `src/hooks/useGameState.ts`
+
+【次回への申し送り】
+
+- Issue #22の動作確認待ち
+- Issue #20（リバーシ戦略概念の説明機能）の検討
+
 ### 開発作業記録の更新ルール
 
 このセクションは**作業の記録と引き継ぎ**のために使用する：
