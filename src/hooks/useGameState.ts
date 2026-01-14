@@ -94,22 +94,23 @@ export function useGameState() {
 
       // 最後の手を取得
       const lastMove = newHistory.pop()!;
-      movesToUndo.push(lastMove);
 
-      // AI対戦時：AIの手の後なら、その前の人間の手も取り消す
-      if (lastMove.isAI && newHistory.length > 0) {
-        const humanMove = newHistory.pop()!;
-        movesToUndo.push(humanMove);
-      }
-      // 人間の手の後にAIが打っていた場合も考慮
-      // （人間→AI→人間の流れで、最後の人間の手を取り消す場合）
-      else if (!lastMove.isAI && newHistory.length > 0 && newHistory[newHistory.length - 1].isAI) {
-        // この場合は人間の手だけを取り消す（AIの手は残す）
-        // ただし、AIの手の前の状態に戻したい場合は、AIの手も取り消す必要がある
-        // ここでは「直前の自分の手を取り消す」という動作にする
+      // AI対戦の場合の処理
+      if (lastMove.isAI) {
+        // 最後の手がAIの手なら、AIの手と、その前の人間の手を両方取り消す
+        // これにより、人間が打つ前の状態に戻る
+        movesToUndo.push(lastMove);
+        if (newHistory.length > 0 && !newHistory[newHistory.length - 1].isAI) {
+          const humanMove = newHistory.pop()!;
+          movesToUndo.push(humanMove);
+        }
+      } else {
+        // 最後の手が人間の手の場合は、その手だけを取り消す
+        // AIの手は残し、人間が別の手を試せるようにする
+        movesToUndo.push(lastMove);
       }
 
-      // ボードを復元（取り消す手を逆順に適用）
+      // ボードを復元（新しい手から順に取り消す）
       const newBoard = prev.board.map((row) => [...row]);
       for (const move of movesToUndo) {
         newBoard[move.row][move.col] = null;
@@ -118,7 +119,7 @@ export function useGameState() {
         });
       }
 
-      // 復元後の手番を決定（最初に取り消した手のプレイヤー）
+      // 復元後の手番を決定（一番古い取り消した手のプレイヤー）
       const playerToMove = movesToUndo[movesToUndo.length - 1].player;
 
       const scores = countPieces(newBoard);
