@@ -21,6 +21,7 @@ export interface GameState {
   gameOver: boolean;
   winner: Player;
   possibleMoves: Position[];
+  lastMove?: Position;
 }
 
 export interface GameSettings {

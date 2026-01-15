@@ -518,7 +518,8 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
 
 【作業内容】
 
-- **Issue #22: 「待った」バグの追加修正**
+- **Issue #22: 「待った」バグの追加修正（1回目）**
+
   - 前回の修正後もまだ正しく動作しない問題を調査
   - **追加の問題発見**:
     1. `undoLastMove`内で`setLastMove`を`setGameState`のコールバック内で呼んでいた（副作用）
@@ -527,8 +528,18 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
     1. `makeGameMove`を単一の`setGameState`呼び出しでアトミックに更新するよう変更
     2. `undoLastMove`から副作用を除去（`setLastMove`をコールバック外に移動）
     3. 未使用の`addMoveToHistory`と`updateGameState`関数を削除
+
+- **Issue #22: 「待った」バグの根本的修正（2回目）**
+  - ユーザーフィードバック：「前の手を消してるだけで前の盤面に戻してない」
+  - **問題の本質**: `undoLastMove`が外部の`gameState`を直接参照していたため、古い状態を読み取る可能性があった
+  - **根本的な修正**:
+    1. `lastMove`を`GameState`インターフェースに統合（`src/types/game.ts`）
+    2. `useGameState`を完全にリファクタリング
+    3. `undoLastMove`を関数型更新パターン（`setGameState((prev) => ...)`）で実装
+    4. すべての状態更新を単一の`setGameState`呼び出しでアトミックに実行
   - 変更ファイル:
-    - `src/hooks/useGameState.ts`
+    - `src/types/game.ts`: `GameState`に`lastMove`フィールドを追加
+    - `src/hooks/useGameState.ts`: 完全リファクタリング
 
 【次回への申し送り】
 
