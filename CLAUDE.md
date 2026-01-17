@@ -537,13 +537,17 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
     2. `useGameState`を完全にリファクタリング
     3. `undoLastMove`を関数型更新パターン（`setGameState((prev) => ...)`）で実装
     4. すべての状態更新を単一の`setGameState`呼び出しでアトミックに実行
+  - **テスト追加**:
+    - `src/__tests__/lib/gameLogic.test.ts`: undo処理のロジックテストを追加
+    - `src/__tests__/hooks/useGameState.test.ts`: useGameStateフックのテストを追加
+    - テストは全て通過（46テスト）
   - 変更ファイル:
     - `src/types/game.ts`: `GameState`に`lastMove`フィールドを追加
     - `src/hooks/useGameState.ts`: 完全リファクタリング
 
 【次回への申し送り】
 
-- Issue #22の動作確認待ち
+- Issue #22の動作確認待ち（テストは通るが実アプリで問題が発生する可能性）
 - Issue #20（リバーシ戦略概念の説明機能）の検討
 
 ### 開発作業記録の更新ルール
