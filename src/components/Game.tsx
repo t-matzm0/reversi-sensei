@@ -7,7 +7,7 @@ import GameInfo from './GameInfo';
 import { GameErrorBoundary } from './GameErrorBoundary';
 import { Board } from '@/types/game';
 import { useGameState, useGameSettings, useAIPlayer, useMoveEvaluation } from '@/hooks';
-import { isValidMove, makeMove, getOpponent } from '@/lib/gameLogic';
+import { isValidMove, getOpponent } from '@/lib/gameLogic';
 
 export default function Game() {
   const { gameState, lastMove, resetGame, makeGameMove, undoLastMove } = useGameState();
@@ -63,8 +63,8 @@ export default function Game() {
         return;
       }
 
-      const newBoard = makeMove(board, row, col, currentPlayer);
-      makeGameMove(newBoard, row, col, currentPlayer, false);
+      // makeGameMoveが古いボードを受け取り、内部でmakeMoveを呼ぶ
+      makeGameMove(board, row, col, currentPlayer, false);
     },
     [gameState, makeGameMove, isVsComputer, isThinking]
   );

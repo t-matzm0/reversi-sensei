@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Board, GameState } from '@/types/game';
 import { getBestMove } from '@/lib/ai';
-import { makeMove } from '@/lib/gameLogic';
 import { AI_MOVE_DELAY } from '@/constants';
 import { Difficulty } from './useGameSettings';
 
@@ -29,8 +28,8 @@ export function useAIPlayer({ gameState, isVsComputer, difficulty, onMove }: Use
     const timer = setTimeout(() => {
       const aiMove = getBestMove(gameState.board, 'white', difficulty);
       if (aiMove) {
-        const newBoard = makeMove(gameState.board, aiMove.row, aiMove.col, 'white');
-        onMove(newBoard, 'black', aiMove);
+        // makeGameMoveが古いボードを受け取り、内部でmakeMoveを呼ぶ
+        onMove(gameState.board, 'black', aiMove);
       }
       setIsThinking(false);
     }, AI_MOVE_DELAY);

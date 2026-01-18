@@ -123,4 +123,73 @@ describe('gameLogic', () => {
       expect(getWinner(board)).toBe('black');
     });
   });
+
+  describe('undo move logic', () => {
+    it('should be able to restore board after undoing a move', () => {
+      // 初期盤面
+      const initialBoard = createInitialBoard();
+
+      // 黒が(2,3)に打つ - flippedPiecesを記録
+      const flippedPieces = getFlippedPieces(initialBoard, 2, 3, 'black');
+      expect(flippedPieces).toHaveLength(1);
+      expect(flippedPieces[0]).toEqual({ row: 3, col: 3 });
+
+      // 手を打つ
+      const boardAfterMove = makeMove(initialBoard, 2, 3, 'black');
+      expect(boardAfterMove[2][3]).toBe('black'); // 置いた石
+      expect(boardAfterMove[3][3]).toBe('black'); // ひっくり返した石
+
+      // 手を取り消す（undoLastMoveと同じロジック）
+      const restoredBoard = boardAfterMove.map((row) => [...row]);
+      // 置いた石を消す
+      restoredBoard[2][3] = null;
+      // ひっくり返した石を元に戻す
+      for (const pos of flippedPieces) {
+        restoredBoard[pos.row][pos.col] = getOpponent('black');
+      }
+
+      // 初期盤面と同じになるはず
+      expect(restoredBoard[2][3]).toBe(null);
+      expect(restoredBoard[3][3]).toBe('white');
+      expect(restoredBoard[3][4]).toBe('black');
+      expect(restoredBoard[4][3]).toBe('black');
+      expect(restoredBoard[4][4]).toBe('white');
+    });
+
+    it('should be able to restore board after undoing multiple moves', () => {
+      // 初期盤面
+      const initialBoard = createInitialBoard();
+
+      // 黒が(2,3)に打つ
+      const blackFlipped = getFlippedPieces(initialBoard, 2, 3, 'black');
+      const boardAfterBlack = makeMove(initialBoard, 2, 3, 'black');
+
+      // 白が(2,2)に打つ
+      const whiteFlipped = getFlippedPieces(boardAfterBlack, 2, 2, 'white');
+      const boardAfterWhite = makeMove(boardAfterBlack, 2, 2, 'white');
+
+      // 2手を取り消す（逆順で）
+      const restoredBoard = boardAfterWhite.map((row) => [...row]);
+
+      // 白の手を取り消す
+      restoredBoard[2][2] = null;
+      for (const pos of whiteFlipped) {
+        restoredBoard[pos.row][pos.col] = getOpponent('white');
+      }
+
+      // 黒の手を取り消す
+      restoredBoard[2][3] = null;
+      for (const pos of blackFlipped) {
+        restoredBoard[pos.row][pos.col] = getOpponent('black');
+      }
+
+      // 初期盤面と同じになるはず
+      expect(restoredBoard[2][2]).toBe(null);
+      expect(restoredBoard[2][3]).toBe(null);
+      expect(restoredBoard[3][3]).toBe('white');
+      expect(restoredBoard[3][4]).toBe('black');
+      expect(restoredBoard[4][3]).toBe('black');
+      expect(restoredBoard[4][4]).toBe('white');
+    });
+  });
 });
