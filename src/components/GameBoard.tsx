@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { Board, Player, Position } from '@/types/game';
+import { getMoveExplanation, MoveExplanation } from '@/lib/moveExplanation';
 
 interface GameBoardProps {
   board: Board;
@@ -15,9 +16,18 @@ interface GameBoardProps {
   highlightPositions?: [number, number][];
 }
 
+interface TooltipState {
+  show: boolean;
+  row: number;
+  col: number;
+  explanation: MoveExplanation | null;
+  x: number;
+  y: number;
+}
+
 function GameBoard({
   board,
-  currentPlayer: _currentPlayer,
+  currentPlayer,
   possibleMoves = [],
   onCellClick,
   showHints,
@@ -26,6 +36,46 @@ function GameBoard({
   lastMove,
   highlightPositions = [],
 }: GameBoardProps) {
+  const [tooltip, setTooltip] = useState<TooltipState>({
+    show: false,
+    row: -1,
+    col: -1,
+    explanation: null,
+    x: 0,
+    y: 0,
+  });
+
+  const handleMouseEnter = useCallback(
+    (e: React.MouseEvent, row: number, col: number) => {
+      if (!showEvaluations || !moveEvaluations) return;
+
+      const key = `${row}-${col}`;
+      const evaluation = moveEvaluations.get(key);
+      if (!evaluation) return;
+
+      const explanation = getMoveExplanation(
+        board,
+        { row, col },
+        currentPlayer,
+        evaluation.normalizedScore
+      );
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      setTooltip({
+        show: true,
+        row,
+        col,
+        explanation,
+        x: rect.left + rect.width / 2,
+        y: rect.top,
+      });
+    },
+    [board, currentPlayer, showEvaluations, moveEvaluations]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setTooltip((prev) => ({ ...prev, show: false }));
+  }, []);
   const isPossibleMove = (row: number, col: number) => {
     return possibleMoves.some((move) => move.row === row && move.col === col);
   };
@@ -70,6 +120,8 @@ function GameBoard({
                 ${isHighlighted(rowIndex, colIndex) ? 'bg-yellow-200 dark:bg-yellow-800' : ''}
               `}
               onClick={() => onCellClick(rowIndex, colIndex)}
+              onMouseEnter={(e) => handleMouseEnter(e, rowIndex, colIndex)}
+              onMouseLeave={handleMouseLeave}
             >
               {cell && (
                 <div
@@ -128,6 +180,62 @@ function GameBoard({
           </div>
         ))}
       </div>
+
+      {/* ツールチップ */}
+      {tooltip.show && tooltip.explanation && (
+        <div
+          className="fixed z-50 pointer-events-none"
+          style={{
+            left: tooltip.x,
+            top: tooltip.y - 10,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          <div
+            className={`
+              px-3 py-2 rounded-lg shadow-lg text-sm max-w-xs
+              ${
+                tooltip.explanation.rating === 'excellent'
+                  ? 'bg-green-600 text-white'
+                  : tooltip.explanation.rating === 'good'
+                    ? 'bg-green-500 text-white'
+                    : tooltip.explanation.rating === 'neutral'
+                      ? 'bg-blue-500 text-white'
+                      : tooltip.explanation.rating === 'bad'
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-red-500 text-white'
+              }
+            `}
+          >
+            <div className="font-bold mb-1">
+              {tooltip.explanation.rating === 'excellent' && '◎ とても良い手'}
+              {tooltip.explanation.rating === 'good' && '○ 良い手'}
+              {tooltip.explanation.rating === 'neutral' && '△ 普通の手'}
+              {tooltip.explanation.rating === 'bad' && '▽ 悪い手'}
+              {tooltip.explanation.rating === 'terrible' && '× とても悪い手'}
+            </div>
+            <div>{tooltip.explanation.immediate}</div>
+            {tooltip.explanation.risk && (
+              <div className="mt-1 text-xs opacity-90">⚠ {tooltip.explanation.risk}</div>
+            )}
+          </div>
+          <div
+            className="w-3 h-3 rotate-45 mx-auto -mt-1.5"
+            style={{
+              backgroundColor:
+                tooltip.explanation.rating === 'excellent'
+                  ? '#16a34a'
+                  : tooltip.explanation.rating === 'good'
+                    ? '#22c55e'
+                    : tooltip.explanation.rating === 'neutral'
+                      ? '#3b82f6'
+                      : tooltip.explanation.rating === 'bad'
+                        ? '#f97316'
+                        : '#ef4444',
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

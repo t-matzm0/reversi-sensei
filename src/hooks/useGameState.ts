@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Board, Player, Position, GameState, Move } from '@/types/game';
+import { Board, Player, GameState, Move } from '@/types/game';
 import {
   createInitialBoard,
   getAllValidMoves,
@@ -8,6 +8,7 @@ import {
   getWinner,
   getOpponent,
   getFlippedPieces,
+  makeMove,
 } from '@/lib/gameLogic';
 import { INITIAL_SCORES } from '@/constants';
 
@@ -23,50 +24,16 @@ export function useGameState() {
       gameOver: false,
       winner: null,
       possibleMoves: getAllValidMoves(board, 'black'),
+      lastMove: undefined,
     };
   });
 
-  const [lastMove, setLastMove] = useState<Position | undefined>();
-
-  const updateGameState = useCallback((board: Board, nextPlayer: Player) => {
-    const scores = countPieces(board);
-    let possibleMoves = getAllValidMoves(board, nextPlayer);
-
-    if (possibleMoves.length === 0) {
-      const opponent = getOpponent(nextPlayer);
-      const opponentMoves = getAllValidMoves(board, opponent);
-
-      if (opponentMoves.length > 0) {
-        nextPlayer = opponent;
-        possibleMoves = opponentMoves;
-      }
-    }
-
-    const gameOver = isGameOver(board);
-    const winner = gameOver ? getWinner(board) : null;
-
-    setGameState((prev) => ({
-      ...prev,
-      board,
-      currentPlayer: gameOver ? null : nextPlayer,
-      blackScore: scores.black,
-      whiteScore: scores.white,
-      gameOver,
-      winner,
-      possibleMoves: gameOver ? [] : possibleMoves,
-    }));
-  }, []);
-
-  const addMoveToHistory = useCallback((move: Move) => {
-    setGameState((prev) => ({
-      ...prev,
-      history: [...prev.history, move],
-    }));
-  }, []);
-
   const makeGameMove = useCallback(
-    (board: Board, row: number, col: number, player: Player, isAI = false) => {
-      const flippedPieces = getFlippedPieces(board, row, col, player);
+    (oldBoard: Board, row: number, col: number, player: Player, isAI = false) => {
+      // 古いボードからflippedPiecesを計算
+      const flippedPieces = getFlippedPieces(oldBoard, row, col, player);
+      // 新しいボードを作成
+      const newBoard = makeMove(oldBoard, row, col, player);
       const move: Move = {
         row,
         col,
@@ -74,13 +41,40 @@ export function useGameState() {
         flippedPieces,
         isAI,
       };
-      addMoveToHistory(move);
-      setLastMove({ row, col });
 
-      const nextPlayer = getOpponent(player);
-      updateGameState(board, nextPlayer);
+      // 次のプレイヤーを計算
+      let nextPlayer = getOpponent(player);
+      const scores = countPieces(newBoard);
+      let possibleMoves = getAllValidMoves(newBoard, nextPlayer);
+
+      // パス判定
+      if (possibleMoves.length === 0) {
+        const opponent = getOpponent(nextPlayer);
+        const opponentMoves = getAllValidMoves(newBoard, opponent);
+        if (opponentMoves.length > 0) {
+          nextPlayer = opponent;
+          possibleMoves = opponentMoves;
+        }
+      }
+
+      const gameOver = isGameOver(newBoard);
+      const winner = gameOver ? getWinner(newBoard) : null;
+
+      // アトミックに全ての状態を更新
+      setGameState((prev) => ({
+        ...prev,
+        board: newBoard,
+        currentPlayer: gameOver ? null : nextPlayer,
+        history: [...prev.history, move],
+        blackScore: scores.black,
+        whiteScore: scores.white,
+        gameOver,
+        winner,
+        possibleMoves: gameOver ? [] : possibleMoves,
+        lastMove: { row, col },
+      }));
     },
-    [addMoveToHistory, setLastMove, updateGameState]
+    []
   );
 
   const undoLastMove = useCallback(() => {
@@ -89,56 +83,55 @@ export function useGameState() {
         return prev;
       }
 
-      // 人間の手のみを取り消し対象とする
       const newHistory = [...prev.history];
-      let lastMove = newHistory.pop()!;
+      const movesToUndo: Move[] = [];
 
-      // 最後の手がAIの手なら、その前の人間の手を探す
-      if (lastMove.isAI) {
-        // AIの手は取り消さず、履歴に戻す
-        newHistory.push(lastMove);
+      // 最後の手を取得
+      const lastMoveInHistory = newHistory.pop()!;
 
-        // 人間の手を探す
-        for (let i = newHistory.length - 1; i >= 0; i--) {
-          if (!newHistory[i].isAI) {
-            lastMove = newHistory[i];
-            newHistory.splice(i, 1);
-            break;
-          }
+      // AI対戦の場合の処理
+      if (lastMoveInHistory.isAI) {
+        // 最後の手がAIの手なら、AIの手と、その前の人間の手を両方取り消す
+        movesToUndo.push(lastMoveInHistory);
+        if (newHistory.length > 0 && !newHistory[newHistory.length - 1].isAI) {
+          const humanMove = newHistory.pop()!;
+          movesToUndo.push(humanMove);
         }
+      } else {
+        // 最後の手が人間の手の場合は、その手だけを取り消す
+        movesToUndo.push(lastMoveInHistory);
+      }
 
-        // 人間の手が見つからない場合は何もしない
-        if (lastMove.isAI) {
-          return prev;
+      // ボードを復元（現在のボードから手を取り消す）
+      const newBoard = prev.board.map((row) => [...row]);
+      for (const move of movesToUndo) {
+        // 置いた石を消す
+        newBoard[move.row][move.col] = null;
+        // ひっくり返した石を元に戻す
+        for (const pos of move.flippedPieces) {
+          newBoard[pos.row][pos.col] = getOpponent(move.player);
         }
       }
 
-      // ボードを復元
-      const newBoard = prev.board.map((row) => [...row]);
-      newBoard[lastMove.row][lastMove.col] = null;
-
-      // 反転された石を元に戻す
-      lastMove.flippedPieces.forEach(({ row, col }) => {
-        newBoard[row][col] = getOpponent(lastMove.player);
-      });
-
+      // 復元後の手番を決定（一番古い取り消した手のプレイヤー）
+      const playerToMove = movesToUndo[movesToUndo.length - 1].player;
       const scores = countPieces(newBoard);
-      const possibleMoves = getAllValidMoves(newBoard, lastMove.player);
+      const possibleMoves = getAllValidMoves(newBoard, playerToMove);
 
-      // 前の手があれば、それをlastMoveとして設定
+      // 前の手を取得
       const previousMove = newHistory.length > 0 ? newHistory[newHistory.length - 1] : undefined;
-      setLastMove(previousMove ? { row: previousMove.row, col: previousMove.col } : undefined);
 
       return {
         ...prev,
         board: newBoard,
-        currentPlayer: lastMove.player,
+        currentPlayer: playerToMove,
         history: newHistory,
         blackScore: scores.black,
         whiteScore: scores.white,
         gameOver: false,
         winner: null,
         possibleMoves,
+        lastMove: previousMove ? { row: previousMove.row, col: previousMove.col } : undefined,
       };
     });
   }, []);
@@ -154,15 +147,16 @@ export function useGameState() {
       gameOver: false,
       winner: null,
       possibleMoves: getAllValidMoves(board, 'black'),
+      lastMove: undefined,
     });
-    setLastMove(undefined);
   }, []);
+
+  // 後方互換性のためlastMoveを別途返す
+  const lastMove = gameState.lastMove;
 
   return {
     gameState,
     lastMove,
-    setLastMove,
-    updateGameState,
     resetGame,
     makeGameMove,
     undoLastMove,

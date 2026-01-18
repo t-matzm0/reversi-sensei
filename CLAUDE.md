@@ -403,6 +403,153 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
 - Issue #4と#5の状況確認
 - 次の開発タスクの選定
 
+### 2026年1月6日
+
+【作業内容】
+
+- **Issue #3: 先生が説明してくれる機能の実装**
+
+  - GitHub Issueの状況確認とスコープ整理
+  - Issue #20（リバーシ戦略概念の説明機能）を新規作成し、高度な戦略説明は別Issueに分離
+  - 評価関数に基づく基本的な説明機能を実装
+
+- **実装内容**
+
+  - `src/lib/moveExplanation.ts`: 説明生成ロジック
+    - `analyzeMove()`: 手の評価要素を分解（角、X打ち、C打ち、モビリティ等）
+    - `generateExplanation()`: 評価要素から日本語説明を生成
+    - `getMoveExplanation()`: 統合関数
+  - `src/components/GameBoard.tsx`: ツールチップUI追加
+    - 評価値セルにマウスオーバーで説明をポップアップ表示
+    - 評価に応じた色分け（excellent/good/neutral/bad/terrible）
+    - 即時的な理由とリスク警告を表示
+
+- **対応した説明パターン**
+
+  - 角取り: 「角を取れます！角は絶対に取られない確定石になります」
+  - X打ち: 「X打ち（角の斜め隣）です。相手に角を取られる危険があります」
+  - C打ち: 「C打ち（角の隣）です。角を取られやすくなります」
+  - モビリティ: 「相手の打てる場所を減らせます」
+  - 相手に角を与える: 「この手を打つと、相手が角を取れるようになります」
+
+- **動作確認**
+
+  - Lint: ✅ エラー/警告なし
+  - Test: ✅ 全41テスト合格
+  - TypeScript: ✅ 型エラーなし
+
+- **PRプレビュー環境の追加**
+  - `.github/workflows/preview-pr.yml`: PRごとにFirebase Preview Channelにデプロイ
+  - PRにプレビューURLが自動コメントされる
+  - 7日間で自動削除
+
+【次回への申し送り】
+
+- Issue #3のPR作成とレビュー依頼
+- 動作確認（実際にゲームをプレイして説明の適切さを確認）
+- Issue #20（リバーシ戦略概念の説明機能）の検討
+- 説明テンプレートの追加・改善（必要に応じて）
+
+### 2026年1月8日
+
+【作業内容】
+
+- **PRプレビュー環境のデバッグと修正** ✅ 完了
+
+  - 問題: Firebase Preview Channelへのデプロイが様々なエラーで失敗
+  - 原因と修正:
+    1. `--target`オプションはhosting:channel:deployでは無効 → 削除
+    2. `--only`オプションも不要 → 削除
+    3. FIREBASE_TOKENが必要 → 追加
+    4. URL抽出のjqパスが間違っていた → 汎用的なパスに修正
+  - 最終動作: PR #21のプレビューURLが正常に生成・コメントされることを確認
+
+- **実装内容**
+  - `.github/workflows/preview-pr.yml`: PRプレビュー環境を正常に動作するよう修正
+    - 複数のURL抽出方法を試行（jq + grep fallback）
+    - 失敗時はPRコメントにデバッグ情報を表示
+    - FIREBASE_TOKENで認証
+    - hosting:channel:deployの正しいオプション使用
+
+### 2026年1月10日
+
+【作業内容】
+
+- **Issue #3: 説明内容の不整合修正**
+
+  - ユーザーフィードバック: 「説明の内容と補足が被っていたり、真逆のことを言っていたり、評価値と逆に見えることがある」
+  - 修正内容:
+    1. 評価値（rating）に応じて説明を選択するロジックに変更
+    2. 良い評価の手には良い点を優先表示、悪い評価の手には悪い点を優先表示
+    3. `immediate`と`risk`の重複を排除
+    4. 説明文を簡潔化（重複表現を削除）
+
+【次回への申し送り】
+
+- PR #21のレビュー確認
+- Issue #20（リバーシ戦略概念の説明機能）の検討
+
+### 2026年1月13日
+
+【作業内容】
+
+- **Issue #3 (PR #21) マージ完了**
+
+  - squash and mergeでdevelopにマージ
+  - Issue #3をクローズ
+
+- **Issue #22: 「待った」が相手を強制パスさせるチートになっているバグの修正**
+  - **根本原因発見**: `makeGameMove`に移動後のボードを渡していたため、`getFlippedPieces`が正しく計算されず、履歴の`flippedPieces`が空だった
+  - 修正:
+    1. `makeGameMove`を修正：古いボードを受け取り、内部で`makeMove`を呼ぶように変更
+    2. `Game.tsx`と`useAIPlayer.ts`を修正：古いボードを渡すように変更
+    3. `undoLastMove`ロジックを簡潔化
+  - 変更ファイル:
+    - `src/hooks/useGameState.ts`
+    - `src/components/Game.tsx`
+    - `src/hooks/useAIPlayer.ts`
+
+【次回への申し送り】
+
+- Issue #22のPRレビュー待ち（PR #24）
+- Issue #20（リバーシ戦略概念の説明機能）の検討
+
+### 2026年1月14日
+
+【作業内容】
+
+- **Issue #22: 「待った」バグの追加修正（1回目）**
+
+  - 前回の修正後もまだ正しく動作しない問題を調査
+  - **追加の問題発見**:
+    1. `undoLastMove`内で`setLastMove`を`setGameState`のコールバック内で呼んでいた（副作用）
+    2. `makeGameMove`の状態更新がアトミックでなかった（複数のsetState呼び出し）
+  - 修正内容:
+    1. `makeGameMove`を単一の`setGameState`呼び出しでアトミックに更新するよう変更
+    2. `undoLastMove`から副作用を除去（`setLastMove`をコールバック外に移動）
+    3. 未使用の`addMoveToHistory`と`updateGameState`関数を削除
+
+- **Issue #22: 「待った」バグの根本的修正（2回目）**
+  - ユーザーフィードバック：「前の手を消してるだけで前の盤面に戻してない」
+  - **問題の本質**: `undoLastMove`が外部の`gameState`を直接参照していたため、古い状態を読み取る可能性があった
+  - **根本的な修正**:
+    1. `lastMove`を`GameState`インターフェースに統合（`src/types/game.ts`）
+    2. `useGameState`を完全にリファクタリング
+    3. `undoLastMove`を関数型更新パターン（`setGameState((prev) => ...)`）で実装
+    4. すべての状態更新を単一の`setGameState`呼び出しでアトミックに実行
+  - **テスト追加**:
+    - `src/__tests__/lib/gameLogic.test.ts`: undo処理のロジックテストを追加
+    - `src/__tests__/hooks/useGameState.test.ts`: useGameStateフックのテストを追加
+    - テストは全て通過（46テスト）
+  - 変更ファイル:
+    - `src/types/game.ts`: `GameState`に`lastMove`フィールドを追加
+    - `src/hooks/useGameState.ts`: 完全リファクタリング
+
+【次回への申し送り】
+
+- Issue #22の動作確認待ち（テストは通るが実アプリで問題が発生する可能性）
+- Issue #20（リバーシ戦略概念の説明機能）の検討
+
 ### 開発作業記録の更新ルール
 
 このセクションは**作業の記録と引き継ぎ**のために使用する：
@@ -754,6 +901,17 @@ reversi_sensei/
    - マージ完了: PRマージ時に自動的にIssueクローズ（`Fixes #番号`使用）
 
 3. **GitHub Projects連携**
+
+   - GitHub Projectsでカンバン管理
+   - ステータス: Todo → In Progress → In Review → Done
+   - GraphQL APIを使用（REST APIでは不可）
+   - Classic token（`project`スコープ付き）が必要
+
+4. **Claude Codeの実装完了時の責務**
+   - 実装完了後、PRを作成する
+   - PR作成後、GitHub ProjectsでIssueのステータスを「In Review」に変更する
+   - Issueにコメントで実装内容とPR番号を記載する
+   - ここまでがClaude Codeの責務（マージはオーナーが判断）
    - 可能な場合はGitHub Projectsでカンバン管理
    - To Do → In Progress → In Review → Doneの流れ
    - **注意**: 現在のリポジトリには `in progress` や `in review` ラベルが存在しない
