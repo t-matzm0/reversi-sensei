@@ -550,6 +550,47 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
 - Issue #22の動作確認待ち（テストは通るが実アプリで問題が発生する可能性）
 - Issue #20（リバーシ戦略概念の説明機能）の検討
 
+### 2026年1月18日
+
+【作業内容】
+
+- **Issue #20: 定石（Opening Book）の説明機能を実装**
+
+  - ユーザーからの要望: 「序盤の定石なども解説できないもんですかね」
+  - 新規ファイル `src/lib/joseki.ts` を作成:
+    - 定石データベース（虎定石、牛定石、蛇定石、兎定石、ねずみ定石など）
+    - 定石マッチング機能 `matchJoseki()`
+    - 定石判定機能 `isJosekiMove()`
+    - ゲーム段階判定 `getGamePhase()`: opening/midgame/endgame
+    - 段階別アドバイス `getPhaseAdvice()`
+  - `src/lib/moveExplanation.ts` を更新:
+    - `getMoveExplanation()` に `history` パラメータを追加
+    - 序盤で定石情報をツールチップに表示
+    - 定石から外れた場合の警告表示
+  - `src/components/GameBoard.tsx` を更新:
+    - `history` propを追加
+    - 定石情報を📖アイコン付きでツールチップに表示
+  - `src/components/Game.tsx` を更新:
+    - GameBoardに `history={gameState.history}` を渡す
+
+- **テスト追加**
+
+  - `src/__tests__/lib/joseki.test.ts`: 新規作成
+    - matchJoseki、isJosekiMove、getJosekiExplanationのテスト
+    - getGamePhase、getPhaseAdviceのテスト
+  - 全64テスト合格
+
+- **動作確認**
+  - Lint: ✅ エラー/警告なし
+  - TypeScript: ✅ 型エラーなし
+  - Test: ✅ 全64テスト合格
+
+【次回への申し送り】
+
+- Issue #20のPR作成とレビュー依頼
+- 定石の追加や説明の改善（必要に応じて）
+- Issue #22のマージ確認
+
 ### 開発作業記録の更新ルール
 
 このセクションは**作業の記録と引き継ぎ**のために使用する：
