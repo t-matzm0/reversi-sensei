@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { Board, Player, Position } from '@/types/game';
+import { Board, Player, Position, Move } from '@/types/game';
 import { getMoveExplanation, MoveExplanation } from '@/lib/moveExplanation';
 
 interface GameBoardProps {
@@ -14,6 +14,7 @@ interface GameBoardProps {
   moveEvaluations?: Map<string, { normalizedScore: number }>;
   lastMove?: Position | null;
   highlightPositions?: [number, number][];
+  history?: Move[];
 }
 
 interface TooltipState {
@@ -35,6 +36,7 @@ function GameBoard({
   moveEvaluations,
   lastMove,
   highlightPositions = [],
+  history = [],
 }: GameBoardProps) {
   const [tooltip, setTooltip] = useState<TooltipState>({
     show: false,
@@ -57,7 +59,8 @@ function GameBoard({
         board,
         { row, col },
         currentPlayer,
-        evaluation.normalizedScore
+        evaluation.normalizedScore,
+        history
       );
 
       const rect = e.currentTarget.getBoundingClientRect();
@@ -70,7 +73,7 @@ function GameBoard({
         y: rect.top,
       });
     },
-    [board, currentPlayer, showEvaluations, moveEvaluations]
+    [board, currentPlayer, showEvaluations, moveEvaluations, history]
   );
 
   const handleMouseLeave = useCallback(() => {
@@ -218,6 +221,11 @@ function GameBoard({
             {tooltip.explanation.risk && (
               <div className="mt-1 text-xs opacity-90">⚠ {tooltip.explanation.risk}</div>
             )}
+            {tooltip.explanation.josekiInfo && (
+              <div className="mt-1 text-xs opacity-90 border-t border-white/30 pt-1">
+                📖 {tooltip.explanation.josekiInfo}
+              </div>
+            )}
           </div>
           <div
             className="w-3 h-3 rotate-45 mx-auto -mt-1.5"
@@ -248,6 +256,7 @@ export default React.memo(GameBoard, (prevProps, nextProps) => {
     prevProps.showEvaluations === nextProps.showEvaluations &&
     prevProps.moveEvaluations === nextProps.moveEvaluations &&
     prevProps.lastMove === nextProps.lastMove &&
+    prevProps.history?.length === nextProps.history?.length &&
     JSON.stringify(prevProps.possibleMoves) === JSON.stringify(nextProps.possibleMoves) &&
     JSON.stringify(prevProps.highlightPositions) === JSON.stringify(nextProps.highlightPositions)
   );
