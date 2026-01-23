@@ -605,6 +605,9 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
 
 【次回への申し送り】
 
+【次回への申し送り】
+
+- Issue #20のPR作成とレビュー依頼
 - Issue #22のマージ確認
 
 ### 開発作業記録の更新ルール
@@ -969,6 +972,10 @@ reversi_sensei/
    - PR作成後、GitHub ProjectsでIssueのステータスを「In Review」に変更する
    - Issueにコメントで実装内容とPR番号を記載する
    - ここまでがClaude Codeの責務（マージはオーナーが判断）
+   - 可能な場合はGitHub Projectsでカンバン管理
+   - To Do → In Progress → In Review → Doneの流れ
+   - **注意**: 現在のリポジトリには `in progress` や `in review` ラベルが存在しない
+   - ラベルがない場合は、コメントで状態を明示（例：「作業開始しました」「PR #XX を作成しました。レビューをお願いします」）
 
 ### PRマージに関するルール
 
