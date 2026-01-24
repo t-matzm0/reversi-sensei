@@ -598,7 +598,8 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
   - 各定石の盤面をハイライト表示
 
 - **チュートリアルの文字色修正**
-  - タイトルに `text-gray-900 dark:text-white` を追加
+  - ページタイトル（オセロ戦略チュートリアル）に `text-gray-900 dark:text-white` を追加
+  - ステップタイトルに `text-gray-900 dark:text-white` を追加
   - 説明文に `text-gray-800 dark:text-gray-100` を追加
   - ダークモード時の背景透明度を調整（20% → 30%）
   - ページカウンターの文字色を改善
