@@ -225,10 +225,12 @@ export default function Tutorial() {
   return (
     <div className="max-w-4xl mx-auto p-4">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">{step.title}</h2>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">{step.description}</p>
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <p className="text-sm">{step.explanation}</p>
+        <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{step.title}</h2>
+        <p className="text-gray-800 dark:text-gray-100 mb-4">{step.description}</p>
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+          <p className="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-line">
+            {step.explanation}
+          </p>
         </div>
       </div>
 
@@ -256,7 +258,7 @@ export default function Tutorial() {
         </button>
 
         <div className="text-center">
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
             {currentStep + 1} / {tutorialSteps.length}
           </span>
         </div>

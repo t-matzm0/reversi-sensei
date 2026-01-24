@@ -26,7 +26,9 @@ export default function TutorialPage() {
             ゲームに戻る
           </Link>
         </div>
-        <h1 className="text-3xl font-bold text-center mb-8">オセロ戦略チュートリアル</h1>
+        <h1 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+          オセロ戦略チュートリアル
+        </h1>
         <Tutorial />
       </div>
     </main>
