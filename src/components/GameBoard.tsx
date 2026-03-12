@@ -26,6 +26,15 @@ interface TooltipState {
   y: number;
 }
 
+interface TooltipState {
+  show: boolean;
+  row: number;
+  col: number;
+  explanation: MoveExplanation | null;
+  x: number;
+  y: number;
+}
+
 function GameBoard({
   board,
   currentPlayer,
