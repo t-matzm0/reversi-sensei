@@ -550,6 +550,86 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
 - Issue #22の動作確認待ち（テストは通るが実アプリで問題が発生する可能性）
 - Issue #20（リバーシ戦略概念の説明機能）の検討
 
+### 2026年1月18日
+
+【作業内容】
+
+- **Issue #20: 定石（Opening Book）の説明機能を実装**
+
+  - ユーザーからの要望: 「序盤の定石なども解説できないもんですかね」
+  - 新規ファイル `src/lib/joseki.ts` を作成:
+    - 定石データベース（虎定石、牛定石、蛇定石、兎定石、ねずみ定石など）
+    - 定石マッチング機能 `matchJoseki()`
+    - 定石判定機能 `isJosekiMove()`
+    - ゲーム段階判定 `getGamePhase()`: opening/midgame/endgame
+    - 段階別アドバイス `getPhaseAdvice()`
+  - `src/lib/moveExplanation.ts` を更新:
+    - `getMoveExplanation()` に `history` パラメータを追加
+    - 序盤で定石情報をツールチップに表示
+    - 定石から外れた場合の警告表示
+  - `src/components/GameBoard.tsx` を更新:
+    - `history` propを追加
+    - 定石情報を📖アイコン付きでツールチップに表示
+  - `src/components/Game.tsx` を更新:
+    - GameBoardに `history={gameState.history}` を渡す
+
+- **テスト追加**
+
+  - `src/__tests__/lib/joseki.test.ts`: 新規作成
+    - matchJoseki、isJosekiMove、getJosekiExplanationのテスト
+    - getGamePhase、getPhaseAdviceのテスト
+  - 全64テスト合格
+
+- **動作確認**
+
+  - Lint: ✅ エラー/警告なし
+  - TypeScript: ✅ 型エラーなし
+  - Test: ✅ 全64テスト合格
+
+- **戦略チュートリアルに定石の説明を追加**
+
+  - `src/components/Tutorial.tsx` を更新:
+    - 定石とは（初手の選択肢の説明）
+    - 縦取り（d3）の説明
+    - 斜め取り（f5）の説明
+    - 虎定石の手順と説明
+    - 牛定石の手順と説明
+    - 定石を学ぶコツ
+  - 各定石の盤面をハイライト表示
+
+- **チュートリアルの文字色修正**
+  - ページタイトル（オセロ戦略チュートリアル）に `text-gray-900 dark:text-white` を追加
+  - ステップタイトルに `text-gray-900 dark:text-white` を追加
+  - 説明文に `text-gray-800 dark:text-gray-100` を追加
+  - ダークモード時の背景透明度を調整（20% → 30%）
+  - ページカウンターの文字色を改善
+
+【次回への申し送り】
+
+- Issue #20のPR作成とレビュー依頼
+- Issue #22のマージ確認
+
+### 2026年3月12日
+
+【作業内容】
+
+- **PR #27（Release: 2026-01-19）のコンフリクト解消**
+
+  - PR #27がコンフリクト（CONFLICTING）で放置されていた問題を対応
+  - origin/mainをdevelopにマージ
+  - コンフリクト3ファイルを解消（CLAUDE.md、GameBoard.tsx、moveExplanation.ts）
+  - 全てdevelop側（新機能含む）を採用
+  - .claude/ディレクトリを.gitignoreに追加
+
+- **動作確認**
+  - Lint: ✅ エラー/警告なし
+  - Test: ✅ 全105テスト合格
+
+【次回への申し送り】
+
+- PR #27のレビュー・マージ判断（オーナー）
+- オープンIssue: #6, #7, #9, #10, #11, #12, #13, #20
+
 ### 開発作業記録の更新ルール
 
 このセクションは**作業の記録と引き継ぎ**のために使用する：

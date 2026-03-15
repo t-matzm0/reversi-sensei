@@ -91,6 +91,101 @@ const tutorialSteps: TutorialStep[] = [
     explanation:
       '石が少ない方が相手の打てる場所が減り、終盤で有利になることがあります。これを「少数戦略」と呼びます。',
   },
+  {
+    id: 'joseki-intro',
+    title: '定石とは',
+    description: '定石（じょうせき）は、序盤の最善手順として研究されてきた打ち方です。',
+    board: createInitialBoard(),
+    highlightPositions: [
+      [2, 3],
+      [3, 2],
+      [4, 5],
+      [5, 4],
+    ],
+    explanation:
+      '初手は4つの選択肢がありますが、対称性を考えると「縦取り」と「斜め取り」の2種類に分類されます。定石を覚えることで、序盤を有利に進められます。',
+  },
+  {
+    id: 'joseki-vertical',
+    title: '縦取り（たてどり）',
+    description: '最も一般的な初手で、多くの定石の基本となります。',
+    board: (() => {
+      let board = createInitialBoard();
+      board = makeMove(board, 2, 3, 'black'); // d3
+      return board;
+    })(),
+    highlightPositions: [[2, 3]],
+    explanation:
+      'd3（縦取り）は最もポピュラーな初手です。ここから虎定石、牛定石、蛇定石など様々な定石に分岐します。相手の応手によって最適な定石が変わります。',
+  },
+  {
+    id: 'joseki-diagonal',
+    title: '斜め取り（ななめどり）',
+    description: 'もう一つの初手の選択肢で、異なる展開になります。',
+    board: (() => {
+      let board = createInitialBoard();
+      board = makeMove(board, 4, 5, 'black'); // f5
+      return board;
+    })(),
+    highlightPositions: [[4, 5]],
+    explanation:
+      'f5（斜め取り）は縦取りとは異なる展開になります。斜め取りからはバッファロー、ローズなど独自の定石があります。',
+  },
+  {
+    id: 'joseki-tiger',
+    title: '虎定石（とらじょうせき）',
+    description: '攻撃的な定石で、序盤から激しい展開になりやすいです。',
+    board: (() => {
+      let board = createInitialBoard();
+      board = makeMove(board, 2, 3, 'black'); // d3
+      board = makeMove(board, 2, 2, 'white'); // c3
+      board = makeMove(board, 3, 2, 'black'); // c4
+      board = makeMove(board, 4, 2, 'white'); // c5
+      board = makeMove(board, 5, 2, 'black'); // c6
+      board = makeMove(board, 3, 5, 'white'); // f4
+      return board;
+    })(),
+    highlightPositions: [
+      [2, 3],
+      [2, 2],
+      [3, 2],
+      [4, 2],
+      [5, 2],
+      [3, 5],
+    ],
+    explanation:
+      '虎定石は縦取りから始まる代表的な定石です。白がc3と応じ、黒がc列を伸ばす展開になります。攻撃的で初心者にも覚えやすい定石です。',
+  },
+  {
+    id: 'joseki-cow',
+    title: '牛定石（うしじょうせき）',
+    description: 'バランスの取れた定石で、安定した展開が期待できます。',
+    board: (() => {
+      let board = createInitialBoard();
+      board = makeMove(board, 2, 3, 'black'); // d3
+      board = makeMove(board, 2, 2, 'white'); // c3
+      board = makeMove(board, 3, 2, 'black'); // c4
+      board = makeMove(board, 4, 2, 'white'); // c5
+      board = makeMove(board, 2, 1, 'black'); // b3
+      return board;
+    })(),
+    highlightPositions: [
+      [2, 3],
+      [2, 2],
+      [3, 2],
+      [4, 2],
+      [2, 1],
+    ],
+    explanation:
+      '牛定石は虎定石と似た序盤ですが、黒がb3に打つことで異なる展開になります。バランスの良い定石で、中級者以上に人気があります。',
+  },
+  {
+    id: 'joseki-tips',
+    title: '定石を学ぶコツ',
+    description: '定石を効果的に学ぶためのポイントを紹介します。',
+    explanation:
+      '1. まず1つの定石を完璧に覚える\n2. 相手が定石から外れた時の対応を考える\n3. 定石の狙いと理由を理解する\n4. 実戦で試して経験を積む\n\n定石を丸暗記するだけでなく、なぜその手が良いのかを理解することが大切です。ゲーム中のツールチップで定石情報が表示されるので、参考にしてください。',
+  },
 ];
 
 export default function Tutorial() {
@@ -130,10 +225,12 @@ export default function Tutorial() {
   return (
     <div className="max-w-4xl mx-auto p-4">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">{step.title}</h2>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">{step.description}</p>
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <p className="text-sm">{step.explanation}</p>
+        <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{step.title}</h2>
+        <p className="text-gray-800 dark:text-gray-100 mb-4">{step.description}</p>
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+          <p className="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-line">
+            {step.explanation}
+          </p>
         </div>
       </div>
 
@@ -161,7 +258,7 @@ export default function Tutorial() {
         </button>
 
         <div className="text-center">
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
             {currentStep + 1} / {tutorialSteps.length}
           </span>
         </div>

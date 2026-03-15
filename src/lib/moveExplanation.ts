@@ -1,5 +1,6 @@
-import { Board, Position, Player } from '@/types/game';
+import { Board, Position, Player, Move } from '@/types/game';
 import { getAllValidMoves, makeMove } from './gameLogic';
+import { isJosekiMove, matchJoseki, getGamePhase, getPhaseAdvice } from './joseki';
 
 // 位置評価テーブル
 const POSITION_WEIGHTS = [
@@ -55,6 +56,8 @@ export interface MoveExplanation {
   immediate: string; // 即時的な理由
   risk?: string; // リスク説明
   rating: 'excellent' | 'good' | 'neutral' | 'bad' | 'terrible';
+  josekiInfo?: string; // 定石情報
+  phaseAdvice?: string; // ゲーム段階アドバイス
 }
 
 function isCornerPosition(row: number, col: number): boolean {
@@ -285,8 +288,33 @@ export function getMoveExplanation(
   board: Board,
   move: Position,
   player: Player,
-  normalizedScore: number
+  normalizedScore: number,
+  history?: Move[]
 ): MoveExplanation {
   const breakdown = analyzeMove(board, move, player);
-  return generateExplanation(breakdown, normalizedScore);
+  const explanation = generateExplanation(breakdown, normalizedScore);
+
+  // ゲーム段階に応じたアドバイス
+  const phase = getGamePhase(board);
+  explanation.phaseAdvice = getPhaseAdvice(phase);
+
+  // 定石情報（序盤のみ）
+  if (history && phase === 'opening') {
+    const isJoseki = isJosekiMove(history, move);
+    const match = matchJoseki(history);
+
+    if (isJoseki) {
+      if (match.joseki) {
+        explanation.josekiInfo = `定石手: ${match.joseki.japaneseName}の手順です`;
+      } else {
+        explanation.josekiInfo = '定石の初手です';
+      }
+    } else if (match.joseki && match.isExactMatch && match.nextRecommendedMove) {
+      const recCol = String.fromCharCode('a'.charCodeAt(0) + match.nextRecommendedMove.col);
+      const recRow = match.nextRecommendedMove.row + 1;
+      explanation.josekiInfo = `定石では${recCol}${recRow}が推奨されます`;
+    }
+  }
+
+  return explanation;
 }

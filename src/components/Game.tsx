@@ -105,6 +105,7 @@ export default function Game() {
                 showEvaluations={showEvaluations}
                 moveEvaluations={moveEvaluations}
                 lastMove={lastMove}
+                history={gameState.history}
               />
             </div>
 
