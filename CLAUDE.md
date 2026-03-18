@@ -609,6 +609,35 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
 - Issue #20のPR作成とレビュー依頼
 - Issue #22のマージ確認
 
+### 2026年3月18日
+
+【作業内容】
+
+- **Issue #20: 5つの戦略概念の検出・説明機能を実装**
+
+  - 新規ファイル `src/lib/strategyDetection.ts` を作成:
+    - `detectNakawari()`: 中割り（内側の石を取り境界石を増やさない手）
+    - `detectWings()`: ウイング（辺に片側のみ伸びる連続した石列）
+    - `detectParity()`: 偶数理論（終盤の空き領域の偶奇判定、空き14以下のみ）
+    - `detectTaneishi()`: 種石（相手石の中に将来の拠点を作る手）
+    - `detectStoner()`: ストーナー（辺の相手石列を攻めて角を狙う手）
+    - `detectAllStrategies()` / `findEmptyRegions()` も実装
+  - `src/lib/moveExplanation.ts` を更新:
+    - `MoveExplanation` に `strategyInfo?: StrategyInfo[]` を追加
+    - `getMoveExplanation()` 内で戦略検出を呼び出し
+  - `src/components/GameBoard.tsx` を更新:
+    - ツールチップに戦略情報セクションを追加（✦/▲アイコン付き）
+  - `src/__tests__/lib/strategyDetection.test.ts` を新規作成
+
+- **動作確認**
+  - Lint: ✅ エラー/警告なし
+  - Test: ✅ 全126テスト合格
+
+【次回への申し送り】
+
+- Issue #20のPR作成とレビュー依頼
+- PR #27のレビュー・マージ判断（オーナー）
+
 ### 2026年3月12日
 
 【作業内容】

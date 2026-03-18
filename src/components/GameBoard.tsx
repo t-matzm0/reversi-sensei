@@ -235,6 +235,15 @@ function GameBoard({
                 📖 {tooltip.explanation.josekiInfo}
               </div>
             )}
+            {tooltip.explanation.strategyInfo && tooltip.explanation.strategyInfo.length > 0 && (
+              <div className="mt-1 border-t border-white/30 pt-1 space-y-0.5">
+                {tooltip.explanation.strategyInfo.map((s, i) => (
+                  <div key={i} className="text-xs opacity-90">
+                    {s.isPositive ? '✦' : '▲'} {s.name}: {s.description}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div
             className="w-3 h-3 rotate-45 mx-auto -mt-1.5"

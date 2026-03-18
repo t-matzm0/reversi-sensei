@@ -1,6 +1,7 @@
 import { Board, Position, Player, Move } from '@/types/game';
 import { getAllValidMoves, makeMove } from './gameLogic';
 import { isJosekiMove, matchJoseki, getGamePhase, getPhaseAdvice } from './joseki';
+import { detectAllStrategies, StrategyInfo } from './strategyDetection';
 
 // 位置評価テーブル
 const POSITION_WEIGHTS = [
@@ -58,6 +59,7 @@ export interface MoveExplanation {
   rating: 'excellent' | 'good' | 'neutral' | 'bad' | 'terrible';
   josekiInfo?: string; // 定石情報
   phaseAdvice?: string; // ゲーム段階アドバイス
+  strategyInfo?: StrategyInfo[]; // 検出された戦略概念
 }
 
 function isCornerPosition(row: number, col: number): boolean {
@@ -297,6 +299,12 @@ export function getMoveExplanation(
   // ゲーム段階に応じたアドバイス
   const phase = getGamePhase(board);
   explanation.phaseAdvice = getPhaseAdvice(phase);
+
+  // 戦略概念の検出
+  const strategies = detectAllStrategies(board, move, player);
+  if (strategies.length > 0) {
+    explanation.strategyInfo = strategies;
+  }
 
   // 定石情報（序盤のみ）
   if (history && phase === 'opening') {
