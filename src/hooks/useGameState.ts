@@ -151,6 +151,23 @@ export function useGameState() {
     });
   }, []);
 
+  const setBoardState = useCallback((board: Board, currentPlayer: 'black' | 'white') => {
+    const scores = countPieces(board);
+    const possibleMoves = getAllValidMoves(board, currentPlayer);
+    const gameOverResult = isGameOver(board);
+    setGameState({
+      board,
+      currentPlayer: gameOverResult ? null : currentPlayer,
+      history: [],
+      blackScore: scores.black,
+      whiteScore: scores.white,
+      gameOver: gameOverResult,
+      winner: gameOverResult ? getWinner(board) : null,
+      possibleMoves: gameOverResult ? [] : possibleMoves,
+      lastMove: undefined,
+    });
+  }, []);
+
   // 後方互換性のためlastMoveを別途返す
   const lastMove = gameState.lastMove;
 
@@ -160,5 +177,6 @@ export function useGameState() {
     resetGame,
     makeGameMove,
     undoLastMove,
+    setBoardState,
   };
 }

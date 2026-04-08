@@ -638,6 +638,39 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
 - Issue #20のPR作成とレビュー依頼
 - PR #27のレビュー・マージ判断（オーナー）
 
+### 2026年4月7日
+
+【作業内容】
+
+- **Issue #20: PR #29の作成**
+
+  - feature/20-strategy-conceptsブランチからdevelopへのPR #29を作成
+  - 5つの戦略概念（中割り、ウイング、偶数理論、種石、ストーナー）の検出・説明機能
+
+- **開発モード用の盤面編集機能（BoardEditor）を追加**
+
+  - レビュー・動作確認時に任意の盤面を作成してプレイできる機能
+  - セルクリックで空→黒→白→空を切り替え、ドラッグで連続配置
+  - 盤面バリデーション（石数4個以上、黒白両方存在、石の連結性、合法手の存在をチェック）
+  - `useGameState`に`setBoardState(board, player)`関数を追加
+  - 本番ビルドには含まれない（`process.env.NODE_ENV === 'development'`で制御）
+  - 変更ファイル:
+    - `src/components/BoardEditor.tsx`: 新規作成
+    - `src/components/Game.tsx`: BoardEditorの統合
+    - `src/hooks/useGameState.ts`: setBoardState追加
+    - `src/__tests__/components/BoardEditor.test.tsx`: 新規作成（9テスト）
+    - `src/__tests__/hooks/useGameState.test.ts`: 型修正
+
+- **動作確認**
+  - Lint: ✅ エラー/警告なし
+  - TypeScript: ✅ 型エラーなし
+  - Test: ✅ 全97テスト合格（9スイート）
+
+【次回への申し送り】
+
+- PR #29のレビュー（Issue #20: 戦略概念の検出・説明機能）
+- PR #27のレビュー・マージ判断（オーナー）
+
 ### 2026年3月12日
 
 【作業内容】

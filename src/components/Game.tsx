@@ -4,13 +4,15 @@ import React, { useCallback } from 'react';
 import Link from 'next/link';
 import GameBoard from './GameBoard';
 import GameInfo from './GameInfo';
+import BoardEditor from './BoardEditor';
 import { GameErrorBoundary } from './GameErrorBoundary';
 import { Board } from '@/types/game';
 import { useGameState, useGameSettings, useAIPlayer, useMoveEvaluation } from '@/hooks';
 import { isValidMove, getOpponent } from '@/lib/gameLogic';
 
 export default function Game() {
-  const { gameState, lastMove, resetGame, makeGameMove, undoLastMove } = useGameState();
+  const { gameState, lastMove, resetGame, makeGameMove, undoLastMove, setBoardState } =
+    useGameState();
   const {
     showHints,
     showEvaluations,
@@ -108,6 +110,8 @@ export default function Game() {
                 history={gameState.history}
               />
             </div>
+
+            {process.env.NODE_ENV === 'development' && <BoardEditor onApply={setBoardState} />}
 
             <GameInfo
               currentPlayer={gameState.currentPlayer}
