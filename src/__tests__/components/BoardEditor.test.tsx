@@ -144,6 +144,70 @@ describe('BoardEditor', () => {
     expect(board[0][0]).toBeNull();
   });
 
+  it('should show validation error when only one color exists', () => {
+    render(<BoardEditor onApply={mockOnApply} />);
+    fireEvent.click(screen.getByText('盤面編集 (Dev)'));
+
+    const container = document.querySelector('.inline-grid')!;
+    const gridCells = container.querySelectorAll('.w-7');
+
+    // Turn both white pieces into black so only black exists (total=4, white=0)
+    // (3,3)=white → null → black
+    fireEvent.pointerDown(gridCells[3 * 8 + 3] as HTMLElement);
+    fireEvent.pointerDown(gridCells[3 * 8 + 3] as HTMLElement);
+    // (4,4)=white → null → black
+    fireEvent.pointerDown(gridCells[4 * 8 + 4] as HTMLElement);
+    fireEvent.pointerDown(gridCells[4 * 8 + 4] as HTMLElement);
+
+    fireEvent.click(screen.getByText('この盤面でプレイ'));
+    expect(mockOnApply).not.toHaveBeenCalled();
+    expect(screen.getByText('白の石がありません')).toBeInTheDocument();
+  });
+
+  it('should show validation error for disconnected pieces', () => {
+    render(<BoardEditor onApply={mockOnApply} />);
+    fireEvent.click(screen.getByText('盤面編集 (Dev)'));
+
+    const container = document.querySelector('.inline-grid')!;
+    const gridCells = container.querySelectorAll('.w-7');
+
+    // Add two isolated pieces at corners (far from the center initial board)
+    // (0,0) null → black
+    fireEvent.pointerDown(gridCells[0] as HTMLElement);
+    // (7,7) null → black → white
+    fireEvent.pointerDown(gridCells[7 * 8 + 7] as HTMLElement);
+    fireEvent.pointerDown(gridCells[7 * 8 + 7] as HTMLElement);
+
+    fireEvent.click(screen.getByText('この盤面でプレイ'));
+    expect(mockOnApply).not.toHaveBeenCalled();
+    expect(
+      screen.getByText('石が分離しています（すべて繋がっている必要があります）')
+    ).toBeInTheDocument();
+  });
+
+  it('should paint cells on drag (pointerEnter after pointerDown)', () => {
+    render(<BoardEditor onApply={mockOnApply} />);
+    fireEvent.click(screen.getByText('盤面編集 (Dev)'));
+
+    const container = document.querySelector('.inline-grid')!;
+    const gridCells = container.querySelectorAll('.w-7');
+
+    // Start drag at (0,0) null → black (paintColor = black)
+    fireEvent.pointerDown(gridCells[0] as HTMLElement);
+    // Drag over (0,1) and (0,2) → should be painted black
+    fireEvent.pointerEnter(gridCells[1] as HTMLElement);
+    fireEvent.pointerEnter(gridCells[2] as HTMLElement);
+    fireEvent.pointerUp(container);
+
+    // After pointerUp, entering another cell should not paint
+    fireEvent.pointerEnter(gridCells[3] as HTMLElement);
+
+    expect((gridCells[0] as HTMLElement).querySelector('.bg-piece-black')).not.toBeNull();
+    expect((gridCells[1] as HTMLElement).querySelector('.bg-piece-black')).not.toBeNull();
+    expect((gridCells[2] as HTMLElement).querySelector('.bg-piece-black')).not.toBeNull();
+    expect((gridCells[3] as HTMLElement).querySelector('.bg-piece-black')).toBeNull();
+  });
+
   it('should close the editor after applying', () => {
     render(<BoardEditor onApply={mockOnApply} />);
     fireEvent.click(screen.getByText('盤面編集 (Dev)'));

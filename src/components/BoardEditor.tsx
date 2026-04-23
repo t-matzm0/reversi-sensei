@@ -28,7 +28,6 @@ function validateBoard(board: Board, player: 'black' | 'white'): string | null {
   if (total < 4) return '石が4個未満です（初期配置は4個）';
   if (blackCount === 0) return '黒の石がありません';
   if (whiteCount === 0) return '白の石がありません';
-  if (Math.abs(blackCount - whiteCount) >= total) return '黒白の石数差が大きすぎます';
 
   // 連結チェック: すべての石が繋がっているか
   const visited = Array.from({ length: 8 }, () => Array(8).fill(false));

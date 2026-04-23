@@ -658,13 +658,18 @@ npm run dev:wsl    # WSL環境専用（0.0.0.0バインド）
     - `src/components/BoardEditor.tsx`: 新規作成
     - `src/components/Game.tsx`: BoardEditorの統合
     - `src/hooks/useGameState.ts`: setBoardState追加
-    - `src/__tests__/components/BoardEditor.test.tsx`: 新規作成（9テスト）
+    - `src/__tests__/components/BoardEditor.test.tsx`: 新規作成（12テスト）
     - `src/__tests__/hooks/useGameState.test.ts`: 型修正
+
+- **2026年4月24日 追加修正**
+
+  - BoardEditorテストを9→12に拡充（1色のみのバリデーション、連結チェック、ドラッグ描画テスト追加）
+  - `validateBoard`から「石数差が大きすぎます」チェックを削除（過剰制限のため）
 
 - **動作確認**
   - Lint: ✅ エラー/警告なし
   - TypeScript: ✅ 型エラーなし
-  - Test: ✅ 全97テスト合格（9スイート）
+  - Test: ✅ 全100テスト合格（9スイート）
 
 【次回への申し送り】
 
