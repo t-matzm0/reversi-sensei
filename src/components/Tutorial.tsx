@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Board } from '@/types/game';
 import GameBoard from './GameBoard';
 import { createInitialBoard, isValidMove, makeMove } from '@/lib/gameLogic';
+import { STRATEGY_EXAMPLES } from '@/lib/strategyExamples';
 
 interface TutorialStep {
   id: string;
@@ -185,6 +186,61 @@ const tutorialSteps: TutorialStep[] = [
     description: '定石を効果的に学ぶためのポイントを紹介します。',
     explanation:
       '1. まず1つの定石を完璧に覚える\n2. 相手が定石から外れた時の対応を考える\n3. 定石の狙いと理由を理解する\n4. 実戦で試して経験を積む\n\n定石を丸暗記するだけでなく、なぜその手が良いのかを理解することが大切です。ゲーム中のツールチップで定石情報が表示されるので、参考にしてください。',
+  },
+  // ===== 戦略概念の章 =====
+  // 各例示盤面は strategyExamples.ts で定義され、ゲーム中の検出ロジックが
+  // 実際に発火することをテストで保証している（説明と実動作の一貫性担保）
+  {
+    id: 'strategy-intro',
+    title: '戦略概念を学ぼう',
+    description: 'リバーシには名前のついた戦略概念がいくつもあります。',
+    explanation:
+      'ここからは「中割り」「ウイング」「偶数理論」「種石」「ストーナー」の5つの戦略概念を学びます。\n\nゲーム中に評価表示をONにして手の候補にカーソルを合わせると、その手に関係する戦略概念がツールチップに表示されます。✦は好手のサイン、▲は注意のサインです。',
+  },
+  {
+    id: 'strategy-nakawari',
+    title: '中割り（なかわり）',
+    description: '相手の石を内側から返す、中盤の基本となる好手です。',
+    board: STRATEGY_EXAMPLES.nakawari.board,
+    highlightPositions: STRATEGY_EXAMPLES.nakawari.highlightPositions,
+    explanation:
+      'ハイライトされた空きマスに黒が打つと、返るのは内側の石だけです。外側に露出した石（境界石）が増えないため、相手に新しい打ち場所を与えにくく、自分の石も安定します。\n\n「外側ではなく内側の石を返す手を探す」のが中盤の基本です。',
+  },
+  {
+    id: 'strategy-wing',
+    title: 'ウイング',
+    description: '辺の片側だけに伸びた石列は、角を取られる危険な形です。',
+    board: STRATEGY_EXAMPLES.wing.board,
+    highlightPositions: STRATEGY_EXAMPLES.wing.highlightPositions,
+    explanation:
+      'ハイライトの位置に黒が打つと、上辺の片側だけに3連の石列（ウイング）ができます。この形は空いている角（左上）を相手に取られるきっかけになりやすい弱い形です。\n\n自分がウイングを作るのは避け、逆に相手に作らせれば角を奪うチャンスになります。',
+  },
+  {
+    id: 'strategy-parity',
+    title: '偶数理論（ぐうすうりろん）',
+    description: '終盤は空きマスの「偶数・奇数」が勝敗を左右します。',
+    board: STRATEGY_EXAMPLES.parity.board,
+    highlightPositions: STRATEGY_EXAMPLES.parity.highlightPositions,
+    explanation:
+      '終盤、盤面の空きマスはいくつかの「領域」に分かれます。ハイライトされた2つの領域はどちらも3マス（奇数）です。\n\n奇数空きの領域では最後に打った側がその領域の石を確定させやすく、有利になります。終盤は「奇数空きの領域を自分が最後に打てる形」を目指しましょう。',
+  },
+  {
+    id: 'strategy-taneishi',
+    title: '種石（たねいし）',
+    description: '相手の石の中に残した自分の石は、後の大量取りの種になります。',
+    board: STRATEGY_EXAMPLES.taneishi.board,
+    highlightPositions: STRATEGY_EXAMPLES.taneishi.highlightPositions,
+    explanation:
+      'ハイライトの位置に黒が打つと、白に囲まれた拠点（種石）ができます。種石はあらゆる方向に白の石列が伸びているため、後でその先に打てば一度に大量の石を返せます。\n\n目先の石数は少なくても、種石を残しておくことが終盤の逆転につながります。',
+  },
+  {
+    id: 'strategy-stoner',
+    title: 'ストーナー',
+    description: '空いた角に向かう相手の石列を攻めて、角を狙う戦術です。',
+    board: STRATEGY_EXAMPLES.stoner.board,
+    highlightPositions: STRATEGY_EXAMPLES.stoner.highlightPositions,
+    explanation:
+      '上辺の右側には空いた角に向かう白の石列があります。ハイライトの位置に黒が打って辺の石を返すと、この石列を足がかりに角を狙う攻めが成立します。\n\n辺に並んだ相手の石列と空き角のセットを見つけたら、ストーナーのチャンスです。ゲーム中のツールチップも参考に、実戦で試してみましょう。',
   },
 ];
 
